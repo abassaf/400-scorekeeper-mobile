@@ -45,12 +45,12 @@ If you miss your bid, you lose points equal to your bid. The first team whose ru
 
 ## Running locally
 
-Requires [Node.js](https://nodejs.org), [Expo CLI](https://docs.expo.dev/get-started/installation/), and either an iOS simulator or Android emulator.
+Requires [Node.js](https://nodejs.org), [pnpm](https://pnpm.io), [Expo CLI](https://docs.expo.dev/get-started/installation/), and either an iOS simulator or Android emulator.
 
 ```bash
-npm install
-npx expo run:ios    # iOS simulator
-npx expo run:android  # Android emulator
+pnpm install
+pnpm expo run:ios      # iOS simulator
+pnpm expo run:android  # Android emulator
 ```
 
 > **Note:** Replace `com.PLACEHOLDER` in `app.json` with your actual bundle identifier before building for distribution.
