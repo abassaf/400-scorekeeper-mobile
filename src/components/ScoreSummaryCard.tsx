@@ -84,7 +84,7 @@ export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
                 </Text>
                 {/* Progress bar (static for capture) */}
                 <View style={{ height: 6, backgroundColor: colors.border, borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
-                  <View style={{ height: 6, backgroundColor: colors.accent, borderRadius: 3, width: clampedPct(total, scoreLimit) }} />
+                  <View style={{ height: 6, backgroundColor: colors.accent, borderRadius: 3, width: clampedPct(total, scoreLimit) as `${number}%` }} />
                 </View>
                 <Text style={{ color: colors.textSubtle, fontSize: 10, textAlign: 'right', marginTop: 2 }}>
                   / {scoreLimit}
