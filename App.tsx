@@ -1,11 +1,29 @@
 import './global.css';
-import { Text, View } from 'react-native';
+import React from 'react';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { RootTabs } from './src/navigation/RootTabs';
+import { colors } from './src/theme';
+
+const navTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: colors.bg,
+    card: colors.card,
+    text: colors.textPrimary,
+    border: colors.border,
+    primary: colors.accent,
+    notification: colors.accent,
+  },
+};
 
 export default function App() {
   return (
-    <View className="flex-1 bg-zinc-950 items-center justify-center">
-      <Text className="text-white text-2xl font-bold">400 Scorekeeper</Text>
-      <Text className="text-emerald-500 mt-2">NativeWind working ✓</Text>
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer theme={navTheme}>
+        <RootTabs />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
