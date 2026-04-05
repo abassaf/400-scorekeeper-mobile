@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "400 Scorekeeper",
+    "slug": "400-scorekeeper",
+    "scheme": "fourhundredscorekeeper",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "newArchEnabled": true,
+    "splash": { "backgroundColor": "#09090b" },
+    "ios": {
+      "bundleIdentifier": "com.PLACEHOLDER.fourhundredscorekeeper",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.PLACEHOLDER.fourhundredscorekeeper",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#09090b"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "react-native-iap"
+    ]
+  }
+}
