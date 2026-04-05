@@ -1,7 +1,8 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { HistoryEntry } from '../hooks/useGameHistory';
 
 export type GameStackParamList = {
-  Game: undefined;
+  Game: { loadEntry?: HistoryEntry } | undefined;
 };
 
 export type HistoryStackParamList = {

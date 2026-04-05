@@ -26,32 +26,39 @@ export function NumberStepper({ value, min, max, onChange, label, sublabel }: Nu
     onChange(next);
   }
 
+  const btnBase: React.ComponentProps<typeof Pressable>['style'] = {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3f3f46',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#52525b',
+  };
+
   return (
-    <View className="items-center">
+    <View style={{ alignItems: 'center' }}>
       {label != null && (
         <Text
-          className="text-xs font-medium text-zinc-400 mb-0.5 text-center"
+          style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '600', marginBottom: 2, textAlign: 'center' }}
           numberOfLines={1}
         >
           {label}
         </Text>
       )}
       {sublabel != null && (
-        <Text className="text-xs text-zinc-600 text-center mb-1">{sublabel}</Text>
+        <Text style={{ color: colors.textMuted, fontSize: 11, textAlign: 'center', marginBottom: 4 }}>{sublabel}</Text>
       )}
-      <View className="flex-row items-center gap-2">
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Pressable
           onPress={() => step(-1)}
           disabled={value <= min}
           accessibilityLabel={`Decrease ${label ?? 'value'}`}
           accessibilityRole="button"
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          className="bg-zinc-800 rounded-lg active:bg-zinc-700"
+          style={[btnBase, value <= min && { opacity: 0.35 }]}
         >
-          <Text
-            style={{ color: value <= min ? colors.textSubtle : colors.textPrimary }}
-            className="text-xl font-semibold"
-          >
+          <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '400', lineHeight: 26 }}>
             −
           </Text>
         </Pressable>
@@ -61,7 +68,7 @@ export function NumberStepper({ value, min, max, onChange, label, sublabel }: Nu
           accessibilityValue={{ min, max, now: value, text: `${value}` }}
           style={{ width: 40, alignItems: 'center' }}
         >
-          <Text className="text-white text-lg font-bold">{value}</Text>
+          <Text style={{ color: colors.textPrimary, fontSize: 18, fontWeight: '700' }}>{value}</Text>
         </View>
 
         <Pressable
@@ -69,13 +76,9 @@ export function NumberStepper({ value, min, max, onChange, label, sublabel }: Nu
           disabled={value >= max}
           accessibilityLabel={`Increase ${label ?? 'value'}`}
           accessibilityRole="button"
-          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-          className="bg-zinc-800 rounded-lg active:bg-zinc-700"
+          style={[btnBase, value >= max && { opacity: 0.35 }]}
         >
-          <Text
-            style={{ color: value >= max ? colors.textSubtle : colors.textPrimary }}
-            className="text-xl font-semibold"
-          >
+          <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '400', lineHeight: 26 }}>
             +
           </Text>
         </Pressable>

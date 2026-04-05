@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Share } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { captureRef } from 'react-native-view-shot';
 import { stateToDeepLink } from './gameReducer';
@@ -34,12 +34,7 @@ export function useShare(cardRef: React.RefObject<View | null>): {
   const shareLink = useCallback(async (state: GameState) => {
     const url = stateToDeepLink(state);
     try {
-      const available = await Sharing.isAvailableAsync();
-      if (available) {
-        await Sharing.shareAsync(url, { dialogTitle: '400 Scorekeeper' });
-      } else {
-        Alert.alert('Share Link', url);
-      }
+      await Share.share({ message: url, url });
     } catch (e) {
       console.warn('Share link failed', e);
     }

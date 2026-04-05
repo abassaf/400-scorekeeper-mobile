@@ -12,7 +12,7 @@ export interface HistoryEntry {
   players: [string, string, string, string];
   scoreLimit: number;
   rounds: Round[];
-  winner: 'A' | 'B';
+  winner: 'A' | 'B' | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -20,8 +20,8 @@ export interface HistoryEntry {
 // ---------------------------------------------------------------------------
 
 export function buildHistoryEntry(state: GameState): HistoryEntry {
-  if (state.phase !== 'finished' || state.winner === null) {
-    throw new Error('Cannot build history entry from non-finished state');
+  if (state.phase === 'setup' || state.rounds.length === 0) {
+    throw new Error('Cannot build history entry from a game with no rounds');
   }
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -61,28 +61,32 @@ export function useGameHistory(): {
   deleteGame: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
   loading: boolean;
+  reload: () => Promise<void>;
 } {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const raw = await storage.getItem(HISTORY_KEY);
-        if (raw !== null) {
-          const parsed: unknown = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            setHistory(parsed.filter(isValidHistoryEntry));
-          }
+  const load = useCallback(async () => {
+    try {
+      const raw = await storage.getItem(HISTORY_KEY);
+      if (raw !== null) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setHistory(parsed.filter(isValidHistoryEntry));
         }
-      } catch {
-        console.warn('Failed to load game history');
-      } finally {
-        setLoading(false);
+      } else {
+        setHistory([]);
       }
+    } catch {
+      console.warn('Failed to load game history');
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const persist = useCallback(async (entries: HistoryEntry[]) => {
     await storage.setItem(HISTORY_KEY, JSON.stringify(entries));
@@ -90,7 +94,7 @@ export function useGameHistory(): {
   }, []);
 
   const saveGame = useCallback(async (state: GameState) => {
-    if (state.phase !== 'finished' || state.winner === null) return;
+    if (state.phase === 'setup' || state.rounds.length === 0) return;
     try {
       const entry = buildHistoryEntry(state);
       const next = [entry, ...history];
@@ -118,5 +122,5 @@ export function useGameHistory(): {
     }
   }, []);
 
-  return { history, saveGame, deleteGame, clearAll, loading };
+  return { history, saveGame, deleteGame, clearAll, loading, reload: load };
 }

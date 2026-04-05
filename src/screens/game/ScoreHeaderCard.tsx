@@ -9,9 +9,10 @@ interface Props {
   state: GameState;
   onNewGame: () => void;
   onShare: () => void;
+  onSave?: () => void;
 }
 
-export function ScoreHeaderCard({ state, onNewGame, onShare }: Props) {
+export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
   const { players, scoreLimit, rounds, phase } = state;
   const totals = runningTotals(rounds);
 
@@ -69,6 +70,16 @@ export function ScoreHeaderCard({ state, onNewGame, onShare }: Props) {
           >
             <Text style={{ color: colors.textSecondary, fontSize: 12 }}>Share</Text>
           </Pressable>
+          {onSave != null && phase === 'playing' && rounds.length > 0 && (
+            <Pressable
+              onPress={onSave}
+              accessibilityLabel="Save game to history"
+              accessibilityRole="button"
+              style={{ backgroundColor: colors.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}
+            >
+              <Text style={{ color: colors.accent, fontSize: 12 }}>Save</Text>
+            </Pressable>
+          )}
           <Pressable
             onPress={onNewGame}
             accessibilityLabel="Start new game"

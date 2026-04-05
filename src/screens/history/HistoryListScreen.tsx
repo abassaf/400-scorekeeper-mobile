@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGameHistory, type HistoryEntry } from '../../hooks/useGameHistory';
 import { runningTotals } from '../../scoring';
@@ -17,14 +17,22 @@ function formatDate(ts: number) {
 
 function HistoryItem({ entry, onPress, onLongPress }: { entry: HistoryEntry; onPress: () => void; onLongPress: () => void }) {
   const totals = runningTotals(entry.rounds);
-  const label = `Team ${entry.winner} won, ${totals.a} to ${totals.b}, played ${formatDate(entry.completedAt)}`;
-  const winnerNames = entry.winner === 'A' ? `${entry.players[0]} & ${entry.players[1]}` : `${entry.players[2]} & ${entry.players[3]}`;
+  const label = entry.winner
+    ? `Team ${entry.winner} won, ${totals.a} to ${totals.b}, played ${formatDate(entry.completedAt)}`
+    : `Unfinished game, played ${formatDate(entry.completedAt)}`;
+  const winnerNames = entry.winner === 'A'
+    ? `${entry.players[0]} & ${entry.players[1]}`
+    : entry.winner === 'B'
+    ? `${entry.players[2]} & ${entry.players[3]}`
+    : `${entry.players[0]}, ${entry.players[1]}, ${entry.players[2]} & ${entry.players[3]}`;
   return (
     <Pressable onPress={onPress} onLongPress={onLongPress} accessibilityLabel={label} accessibilityRole="button"
       style={{ backgroundColor: colors.card, borderRadius: 12, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: colors.border }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.textPrimary, fontWeight: '600', fontSize: 14 }}>Team {entry.winner} Wins</Text>
+          <Text style={{ color: colors.textPrimary, fontWeight: '600', fontSize: 14 }}>
+            {entry.winner ? `Team ${entry.winner} Wins` : 'Unfinished'}
+          </Text>
           <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>{winnerNames}</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
@@ -43,8 +51,10 @@ function HistoryItem({ entry, onPress, onLongPress }: { entry: HistoryEntry; onP
 
 export function HistoryListScreen() {
   const navigation = useNavigation<Nav>();
-  const { history, deleteGame, clearAll, loading } = useGameHistory();
+  const { history, deleteGame, clearAll, loading, reload } = useGameHistory();
   const [refreshing, setRefreshing] = useState(false);
+
+  useFocusEffect(useCallback(() => { reload(); }, [reload]));
 
   function handleLongPress(entry: HistoryEntry) {
     Alert.alert('Delete Game', 'Remove this game from history?', [
