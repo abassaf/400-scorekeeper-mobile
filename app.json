@@ -9,11 +9,11 @@
     "newArchEnabled": true,
     "splash": { "backgroundColor": "#09090b" },
     "ios": {
-      "bundleIdentifier": "com.PLACEHOLDER.fourhundredscorekeeper",
+      "bundleIdentifier": "com.abassaf.fourhundredscorekeeper",
       "supportsTablet": false
     },
     "android": {
-      "package": "com.PLACEHOLDER.fourhundredscorekeeper",
+      "package": "com.abassaf.fourhundredscorekeeper",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#09090b"
