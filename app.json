@@ -20,8 +20,6 @@
       },
       "edgeToEdgeEnabled": true
     },
-    "plugins": [
-      "react-native-iap"
-    ]
+    "plugins": []
   }
 }
