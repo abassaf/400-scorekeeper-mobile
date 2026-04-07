@@ -1,0 +1,51 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Sync certificates and provisioning profiles"
+  lane :certs do
+    match(type: "appstore")
+  end
+
+  desc "Build and upload to App Store"
+  lane :release do
+    match(type: "appstore", readonly: true)
+    build_app(
+      workspace: "ios/400Scorekeeper.xcworkspace",
+      scheme: "400Scorekeeper",
+      configuration: "Release"
+    )
+    upload_to_app_store(
+      skip_metadata: true,
+      skip_screenshots: true
+    )
+  end
+end
+
+platform :android do
+  desc "Build and upload to Google Play"
+  lane :release do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    upload_to_play_store(
+      track: "internal"
+    )
+  end
+end
