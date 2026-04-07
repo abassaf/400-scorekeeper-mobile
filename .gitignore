@@ -44,6 +44,12 @@ yarn-error.*
 CLAUDE.md
 AGENTS.md
 
+# build outputs
+*.ipa
+*.apk
+*.aab
+*.app.dSYM.zip
+
 # fastlane
 fastlane/report.xml
 fastlane/Preview.html
