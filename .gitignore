@@ -44,11 +44,17 @@ yarn-error.*
 CLAUDE.md
 AGENTS.md
 
+# Android keystore
+android/*.keystore
+
 # build outputs
 *.ipa
 *.apk
 *.aab
 *.app.dSYM.zip
+
+# fastlane secrets
+fastlane/.env
 
 # fastlane
 fastlane/report.xml
