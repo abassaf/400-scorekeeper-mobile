@@ -23,15 +23,31 @@ platform :ios do
 
   desc "Build and upload to App Store"
   lane :release do
-    match(type: "appstore", readonly: true)
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"]
+    )
+    match(type: "appstore", readonly: true, api_key: api_key)
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      team_id: "X5FF3SWL39",
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore com.abassaf.fourhundredscorekeeper",
+      bundle_identifier: "com.abassaf.fourhundredscorekeeper",
+      path: "ios/400Scorekeeper.xcodeproj"
+    )
+    increment_build_number(xcodeproj: "ios/400Scorekeeper.xcodeproj")
     build_app(
       workspace: "ios/400Scorekeeper.xcworkspace",
       scheme: "400Scorekeeper",
       configuration: "Release"
     )
     upload_to_app_store(
+      api_key: api_key,
       skip_metadata: true,
-      skip_screenshots: true
+      skip_screenshots: true,
+      precheck_include_in_app_purchases: false
     )
   end
 end
