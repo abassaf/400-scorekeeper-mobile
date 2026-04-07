@@ -5,7 +5,6 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGameHistory, type HistoryEntry } from '../../hooks/useGameHistory';
 import { runningTotals } from '../../scoring';
-import { SupportButton } from '../../components/SupportButton';
 import { colors } from '../../theme';
 import type { HistoryStackParamList } from '../../navigation/types';
 
@@ -91,7 +90,6 @@ export function HistoryListScreen() {
             <Text style={{ color: colors.textSubtle, fontSize: 13, marginTop: 4 }}>Start a game on the Game tab.</Text>
           </View>
         ) : null}
-        ListFooterComponent={history.length > 0 ? <SupportButton /> : null}
         renderItem={({ item }) => (
           <HistoryItem entry={item} onPress={() => navigation.navigate('HistoryDetail', { entry: item })} onLongPress={() => handleLongPress(item)} />
         )}
