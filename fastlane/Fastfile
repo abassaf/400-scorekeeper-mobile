@@ -58,10 +58,17 @@ platform :android do
     gradle(
       task: "bundle",
       build_type: "Release",
-      project_dir: "android/"
+      project_dir: "android/",
+      properties: {
+        "android.injected.signing.store.file" => ENV["ANDROID_KEYSTORE_PATH"],
+        "android.injected.signing.store.password" => ENV["ANDROID_KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["ANDROID_KEYSTORE_ALIAS"],
+        "android.injected.signing.key.password" => ENV["ANDROID_KEY_PASSWORD"],
+      }
     )
     upload_to_play_store(
-      track: "internal"
+      track: "internal",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
     )
   end
 end
