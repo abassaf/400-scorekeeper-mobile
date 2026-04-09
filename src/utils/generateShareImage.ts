@@ -308,12 +308,11 @@ export async function generateShareImage(state: GameState): Promise<string> {
 
   const dir = `${cacheDirectory ?? ''}share-images/`;
   await makeDirectoryAsync(dir, { intermediates: true });
+  // Prune any previous exports so the cache doesn't grow unbounded
+  await deleteAsync(dir, { idempotent: true });
+  await makeDirectoryAsync(dir, { intermediates: true });
   const path = `${dir}score-${Date.now()}.png`;
-  await deleteAsync(path, { idempotent: true });
   await writeAsStringAsync(path, base64, { encoding: EncodingType.Base64 });
-
-  // Suppress unused variable warnings for fonts declared but only assigned
-  void fSm;
 
   return path;
 }
