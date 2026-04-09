@@ -1,25 +1,23 @@
 import { useState, useCallback } from 'react';
-import { View, Alert, Share } from 'react-native';
+import { Alert, Share } from 'react-native';
 import * as Sharing from 'expo-sharing';
-import { captureRef } from 'react-native-view-shot';
 import { stateToDeepLink } from './gameReducer';
+import { generateShareImage } from '../utils/generateShareImage';
 import type { GameState } from '../types';
 
-export function useShare(cardRef: React.RefObject<View | null>): {
+export function useShare(): {
   sharing: boolean;
-  shareImage: () => Promise<void>;
+  shareImage: (state: GameState) => Promise<void>;
   shareLink: (state: GameState) => Promise<void>;
   showShareSheet: (state: GameState) => void;
 } {
   const [sharing, setSharing] = useState(false);
 
-  const shareImage = useCallback(async () => {
+  const shareImage = useCallback(async (state: GameState) => {
     if (sharing) return;
     setSharing(true);
     try {
-      // Small delay to ensure the hidden view has completed its layout pass
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      const uri = await generateShareImage(state);
       const available = await Sharing.isAvailableAsync();
       if (available) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: '400 Scorekeeper' });
@@ -28,10 +26,11 @@ export function useShare(cardRef: React.RefObject<View | null>): {
       }
     } catch (e) {
       console.warn('Share image failed', e);
+      Alert.alert('Share failed', 'Could not generate image. Please try again.');
     } finally {
       setSharing(false);
     }
-  }, [cardRef, sharing]);
+  }, [sharing]);
 
   const shareLink = useCallback(async (state: GameState) => {
     const url = stateToDeepLink(state);
@@ -44,7 +43,7 @@ export function useShare(cardRef: React.RefObject<View | null>): {
 
   const showShareSheet = useCallback((state: GameState) => {
     Alert.alert('Share', 'How would you like to share?', [
-      { text: 'Share as Image', onPress: shareImage },
+      { text: 'Share as Image', onPress: () => shareImage(state) },
       { text: 'Share Link', onPress: () => shareLink(state) },
       { text: 'Cancel', style: 'cancel' },
     ]);

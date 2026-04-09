@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { ScrollView, View, Alert } from 'react-native';
+import { ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { GameState } from '../../types';
 import type { GameAction } from '../../hooks/useGameState';
@@ -10,15 +10,13 @@ import { RoundFormCard } from './RoundFormCard';
 import { RoundHistoryCard } from './RoundHistoryCard';
 import { PlayerStatsCard } from './PlayerStatsCard';
 import { WinnerBannerCard } from './WinnerBannerCard';
-import { ScoreSummaryCard } from '../../components/ScoreSummaryCard';
 import { colors } from '../../theme';
 
 interface Props { state: GameState; dispatch: React.Dispatch<GameAction>; }
 
 export function ActiveGameScreen({ state, dispatch }: Props) {
-  const cardRef = useRef<View>(null);
   const { saveGame } = useGameHistory();
-  const { showShareSheet } = useShare(cardRef);
+  const { showShareSheet } = useShare();
   const savedRef = useRef(false);
 
   React.useEffect(() => {
@@ -78,9 +76,6 @@ export function ActiveGameScreen({ state, dispatch }: Props) {
         <RoundHistoryCard state={state} />
         <PlayerStatsCard state={state} />
       </ScrollView>
-      <View style={{ position: 'absolute', top: 0, left: 0, opacity: 0 }} pointerEvents="none">
-        <ScoreSummaryCard ref={cardRef} state={state} />
-      </View>
     </SafeAreaView>
   );
 }
