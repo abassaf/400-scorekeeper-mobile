@@ -16,7 +16,7 @@ interface Props { state: GameState; dispatch: React.Dispatch<GameAction>; }
 
 export function ActiveGameScreen({ state, dispatch }: Props) {
   const { saveGame } = useGameHistory();
-  const { showShareSheet } = useShare();
+  const { showShareSheet, captureModal } = useShare();
   const savedRef = useRef(false);
 
   React.useEffect(() => {
@@ -76,6 +76,7 @@ export function ActiveGameScreen({ state, dispatch }: Props) {
         <RoundHistoryCard state={state} />
         <PlayerStatsCard state={state} />
       </ScrollView>
+      {captureModal}
     </SafeAreaView>
   );
 }
