@@ -128,16 +128,17 @@ export async function generateShareImage(state: GameState): Promise<string> {
 
   // ── Create off-screen surface (CPU-backed) ──
   const surface = Skia.Surface.Make(W, H);
-  if (!surface) throw new Error('Skia.Surface.Make returned null');
+  if (!surface) throw new Error('Skia.Surface.Make returned null — Skia not initialized?');
   const canvas = surface.getCanvas();
 
-  // Fonts (system default typeface)
-  const fTiny = Skia.Font(undefined, SZ_TINY);
-  const fSm   = Skia.Font(undefined, SZ_SM);
-  const fMd   = Skia.Font(undefined, SZ_MD);
-  const fBase = Skia.Font(undefined, SZ_BASE);
-  const fLg   = Skia.Font(undefined, SZ_LG);
-  const fHuge = Skia.Font(undefined, SZ_HUGE);
+  // Load system typeface via FontMgr so drawText calls actually render
+  const typeface = Skia.FontMgr.System().matchFamilyStyle('', {});
+  const fTiny = Skia.Font(typeface, SZ_TINY);
+  const fSm   = Skia.Font(typeface, SZ_SM);
+  const fMd   = Skia.Font(typeface, SZ_MD);
+  const fBase = Skia.Font(typeface, SZ_BASE);
+  const fLg   = Skia.Font(typeface, SZ_LG);
+  const fHuge = Skia.Font(typeface, SZ_HUGE);
 
   // ── Background ──
   canvas.drawRect(Skia.XYWHRect(0, 0, W, H), mkFill(colors.bg));
@@ -305,6 +306,8 @@ export async function generateShareImage(state: GameState): Promise<string> {
   // ── Encode & write ───────────────────────────────
   const image = surface.makeImageSnapshot();
   const base64 = image.encodeToBase64(ImageFormat.PNG, 100);
+  // Diagnostic — remove after confirming image generation works
+  console.warn(`[generateShareImage] canvas ${W}×${H}, base64 length: ${base64.length}`);
 
   const dir = `${cacheDirectory ?? ''}share-images/`;
   await makeDirectoryAsync(dir, { intermediates: true });
