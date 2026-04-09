@@ -19,7 +19,7 @@ type Props = NativeStackScreenProps<HistoryStackParamList, 'HistoryDetail'>;
 export function HistoryDetailScreen({ route, navigation }: Props) {
   const { entry } = route.params;
   const state: GameState = { phase: entry.winner ? 'finished' : 'playing', players: entry.players, scoreLimit: entry.scoreLimit, rounds: entry.rounds, winner: entry.winner };
-  const { showShareSheet } = useShare();
+  const { showShareSheet, captureModal } = useShare();
   const { deleteGame } = useGameHistory();
   const rootNavigation = useNavigation<NavigationProp<RootTabParamList>>();
   const noop = () => undefined;
@@ -84,6 +84,7 @@ export function HistoryDetailScreen({ route, navigation }: Props) {
           </Pressable>
         </View>
       </ScrollView>
+      {captureModal}
     </SafeAreaView>
   );
 }
