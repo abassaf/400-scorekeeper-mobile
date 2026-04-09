@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { View, Alert, Share, Modal } from 'react-native';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 import { captureRef } from 'react-native-view-shot';
 import { stateToDeepLink } from './gameReducer';
 import { ScoreSummaryCard } from '../components/ScoreSummaryCard';
@@ -40,12 +41,16 @@ export function useShare(): {
         resolveCapture.current = resolve;
         setTimeout(async () => {
           try {
-            const captured = await captureRef(cardRef, {
+            const tmpUri = await captureRef(cardRef, {
               format: 'png',
               quality: 1,
               result: 'tmpfile',
             });
-            resolve(captured);
+            // Copy to caches dir — the simulator (and some device configurations)
+            // fail to share directly from the app's tmp directory.
+            const dest = `${FileSystem.cacheDirectory ?? ''}score-share-${Date.now()}.png`;
+            await FileSystem.copyAsync({ from: tmpUri, to: dest });
+            resolve(dest);
           } catch (e) {
             reject(e);
           }
