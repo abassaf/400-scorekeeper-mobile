@@ -17,6 +17,8 @@ export function useShare(cardRef: React.RefObject<View | null>): {
     if (sharing) return;
     setSharing(true);
     try {
+      // Small delay to ensure the hidden view has completed its layout pass
+      await new Promise((resolve) => setTimeout(resolve, 100));
       const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
       const available = await Sharing.isAvailableAsync();
       if (available) {
