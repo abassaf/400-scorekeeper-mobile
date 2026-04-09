@@ -86,7 +86,7 @@ export function HistoryDetailScreen({ route, navigation }: Props) {
           </Pressable>
         </View>
       </ScrollView>
-      <View style={{ position: 'absolute', left: -9999, top: 0 }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, opacity: 0 }} pointerEvents="none">
         <ScoreSummaryCard ref={cardRef} state={state} />
       </View>
     </SafeAreaView>
