@@ -77,10 +77,10 @@ export function ActiveGameScreen({ state, dispatch }: Props) {
         )}
         <RoundHistoryCard state={state} />
         <PlayerStatsCard state={state} />
-        <View style={{ position: 'absolute', left: -9999, top: 0 }}>
-          <ScoreSummaryCard ref={cardRef} state={state} />
-        </View>
       </ScrollView>
+      <View style={{ position: 'absolute', left: -9999, top: 0 }}>
+        <ScoreSummaryCard ref={cardRef} state={state} />
+      </View>
     </SafeAreaView>
   );
 }

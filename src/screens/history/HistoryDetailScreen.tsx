@@ -85,11 +85,10 @@ export function HistoryDetailScreen({ route, navigation }: Props) {
             <Text style={{ color: colors.danger, fontWeight: '600', fontSize: 15 }}>Delete Game</Text>
           </Pressable>
         </View>
-
-        <View style={{ position: 'absolute', left: -9999, top: 0 }}>
-          <ScoreSummaryCard ref={cardRef} state={state} />
-        </View>
       </ScrollView>
+      <View style={{ position: 'absolute', left: -9999, top: 0 }}>
+        <ScoreSummaryCard ref={cardRef} state={state} />
+      </View>
     </SafeAreaView>
   );
 }
