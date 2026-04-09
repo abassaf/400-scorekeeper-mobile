@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
@@ -11,7 +11,6 @@ import { ScoreHeaderCard } from '../game/ScoreHeaderCard';
 import { RoundHistoryCard } from '../game/RoundHistoryCard';
 import { PlayerStatsCard } from '../game/PlayerStatsCard';
 import { WinnerBannerCard } from '../game/WinnerBannerCard';
-import { ScoreSummaryCard } from '../../components/ScoreSummaryCard';
 import { colors } from '../../theme';
 import type { GameState } from '../../types';
 
@@ -19,9 +18,8 @@ type Props = NativeStackScreenProps<HistoryStackParamList, 'HistoryDetail'>;
 
 export function HistoryDetailScreen({ route, navigation }: Props) {
   const { entry } = route.params;
-  const cardRef = useRef<View>(null);
   const state: GameState = { phase: entry.winner ? 'finished' : 'playing', players: entry.players, scoreLimit: entry.scoreLimit, rounds: entry.rounds, winner: entry.winner };
-  const { showShareSheet } = useShare(cardRef);
+  const { showShareSheet } = useShare();
   const { deleteGame } = useGameHistory();
   const rootNavigation = useNavigation<NavigationProp<RootTabParamList>>();
   const noop = () => undefined;
@@ -86,9 +84,6 @@ export function HistoryDetailScreen({ route, navigation }: Props) {
           </Pressable>
         </View>
       </ScrollView>
-      <View style={{ position: 'absolute', top: 0, left: 0, opacity: 0 }} pointerEvents="none">
-        <ScoreSummaryCard ref={cardRef} state={state} />
-      </View>
     </SafeAreaView>
   );
 }

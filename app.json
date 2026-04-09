@@ -20,6 +20,6 @@
       },
       "edgeToEdgeEnabled": true
     },
-    "plugins": []
+    "plugins": ["@shopify/react-native-skia"]
   }
 }
