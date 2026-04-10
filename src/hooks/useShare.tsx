@@ -1,10 +1,8 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { View, Alert, Share, Modal } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Alert, Platform, Share } from 'react-native';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
-import { captureRef } from 'react-native-view-shot';
 import { stateToDeepLink } from './gameReducer';
-import { ScoreSummaryCard } from '../components/ScoreSummaryCard';
+import { generateShareImage } from '../utils/generateShareImage';
 import type { GameState } from '../types';
 
 export function useShare(): {
@@ -15,63 +13,33 @@ export function useShare(): {
   showShareSheet: (state: GameState) => void;
 } {
   const [sharing, setSharing] = useState(false);
-  const [captureState, setCaptureState] = useState<GameState | null>(null);
-  const cardRef = useRef<View>(null);
-  const resolveCapture = useRef<((uri: string) => void) | null>(null);
-
-  // Rendered by the host component — a transparent modal that keeps the card
-  // in iOS's native render tree so captureRef can actually see it.
-  const captureModal: React.ReactNode = captureState ? (
-    <Modal transparent animationType="none" visible statusBarTranslucent>
-      <View style={{ position: 'absolute', top: 0, left: 0, opacity: 0.01 }} pointerEvents="none">
-        <ScoreSummaryCard ref={cardRef} state={captureState} />
-      </View>
-    </Modal>
-  ) : null;
+  const captureModal: React.ReactNode = null;
 
   const shareImage = useCallback(async (state: GameState) => {
     if (sharing) return;
     setSharing(true);
     try {
-      // Show the modal with the card
-      setCaptureState(state);
+      const uri = await generateShareImage(state);
 
-      // Wait two animation frames for the modal and card to finish layout
-      const uri = await new Promise<string>((resolve, reject) => {
-        resolveCapture.current = resolve;
-        setTimeout(async () => {
-          try {
-            const tmpUri = await captureRef(cardRef, {
-              format: 'png',
-              quality: 1,
-              result: 'tmpfile',
-            });
-            // Copy to caches dir — the simulator (and some device configurations)
-            // fail to share directly from the app's tmp directory.
-            const dest = `${FileSystem.cacheDirectory ?? ''}score-share-${Date.now()}.png`;
-            await FileSystem.copyAsync({ from: tmpUri, to: dest });
-            resolve(dest);
-          } catch (e) {
-            reject(e);
-          }
-        }, 300);
-      });
-
-      setCaptureState(null);
-
-      const available = await Sharing.isAvailableAsync();
-      if (available) {
-        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: '400 Scorekeeper' });
+      if (Platform.OS === 'ios') {
+        await Share.share({ url: uri });
       } else {
-        Alert.alert('Sharing not available', 'Your device does not support sharing.');
+        const available = await Sharing.isAvailableAsync();
+        if (available) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'image/png',
+            dialogTitle: '400 Scorekeeper',
+            UTI: 'public.png',
+          });
+        } else {
+          Alert.alert('Sharing not available', 'Your device does not support sharing.');
+        }
       }
     } catch (e) {
-      setCaptureState(null);
       console.warn('Share image failed', e);
       Alert.alert('Share failed', 'Could not generate image. Please try again.');
     } finally {
       setSharing(false);
-      resolveCapture.current = null;
     }
   }, [sharing]);
 
