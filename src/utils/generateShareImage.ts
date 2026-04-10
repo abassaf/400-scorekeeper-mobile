@@ -1,5 +1,5 @@
 import { Skia, ImageFormat, PaintStyle } from '@shopify/react-native-skia';
-import type { SkCanvas, SkFont } from '@shopify/react-native-skia';
+import type { SkCanvas, SkFont, SkTypeface } from '@shopify/react-native-skia';
 import {
   cacheDirectory,
   makeDirectoryAsync,
@@ -7,23 +7,27 @@ import {
   writeAsStringAsync,
   EncodingType,
 } from 'expo-file-system/legacy';
+import { Asset } from 'expo-asset';
 import { runningTotals, playerStats, playerCumulativeScore } from '../scoring';
 import { colors } from '../theme';
 import type { GameState, PlayerIndex } from '../types';
 
-// Canvas dimensions (2× the 340px reference card)
-const W = 680;
-const PAD = 32;
-const GAP = 24;
-const INNER = W - PAD * 2; // 616
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const INTER_FONT = require('../../assets/fonts/Inter.ttf') as number;
+
+// Canvas dimensions
+const W = 1080;
+const PAD = 48;
+const GAP = 32;
+const INNER = W - PAD * 2; // 984
 
 // Font sizes
 const SZ_TINY = 18;
-const SZ_SM = 20;
-const SZ_MD = 22;
-const SZ_BASE = 28;
-const SZ_LG = 32;
-const SZ_HUGE = 64;
+const SZ_SM   = 20;
+const SZ_MD   = 24;
+const SZ_BASE = 30;
+const SZ_LG   = 38;
+const SZ_HUGE = 76;
 
 const PLAYER_INDICES: PlayerIndex[] = [0, 1, 2, 3];
 
@@ -84,9 +88,25 @@ function fmtDelta(score: number) {
   return score > 0 ? `+${score}` : `${score}`;
 }
 
+function truncate(name: string, max: number) {
+  return name.length > max ? name.substring(0, max - 1) + '…' : name;
+}
+
 // ──────────────────────────────────────────────────
 // Main export
 // ──────────────────────────────────────────────────
+
+// Load the bundled Inter font once and reuse across calls
+let _cachedTypeface: SkTypeface | null | undefined;
+
+async function loadTypeface(): Promise<SkTypeface | null> {
+  if (_cachedTypeface !== undefined) return _cachedTypeface;
+  const [asset] = await Asset.loadAsync(INTER_FONT);
+  const uri = asset.localUri ?? asset.uri;
+  const data = await Skia.Data.fromURI(uri);
+  _cachedTypeface = data ? Skia.Typeface.MakeFreeTypeFaceFromData(data) : null;
+  return _cachedTypeface;
+}
 
 export async function generateShareImage(state: GameState): Promise<string> {
   const { players, rounds, scoreLimit, winner } = state;
@@ -104,17 +124,23 @@ export async function generateShareImage(state: GameState): Promise<string> {
   });
 
   // ── Section heights ──
-  const HEADER_H = 56;
-  const TEAM_BOX_H = 210;
-  const HISTORY_ROW_H = 24;
-  const HISTORY_PANEL_PAD = 20;
-  const HISTORY_HEADER_H = 32;
+  const HEADER_H = 64;
+  const TEAM_BOX_H = 280;
+
+  // History panel: section label + column headers + data rows
+  const HISTORY_PANEL_PAD  = 28;
+  const HISTORY_SECTION_H  = 44; // "ROUND HISTORY" label row
+  const HISTORY_COL_H      = 36; // column header row
+  const HISTORY_ROW_H      = 32; // data row
   const HISTORY_H =
     rounds.length > 0
-      ? HISTORY_PANEL_PAD + HISTORY_HEADER_H + rounds.length * HISTORY_ROW_H + HISTORY_PANEL_PAD
+      ? HISTORY_PANEL_PAD + HISTORY_SECTION_H + HISTORY_COL_H +
+        rounds.length * HISTORY_ROW_H + HISTORY_PANEL_PAD
       : 0;
-  const STATS_H = rounds.length > 0 ? 180 : 0;
-  const FOOTER_H = 48;
+
+  // Player stats cards — name + team + score (pts) + make% + bid·won
+  const STATS_H    = rounds.length > 0 ? 260 : 0;
+  const FOOTER_H   = 56;
 
   const H =
     PAD +
@@ -131,8 +157,10 @@ export async function generateShareImage(state: GameState): Promise<string> {
   if (!surface) throw new Error('Skia.Surface.Make returned null — Skia not initialized?');
   const canvas = surface.getCanvas();
 
-  // Load system typeface via FontMgr so drawText calls actually render
-  const typeface = Skia.FontMgr.System().matchFamilyStyle('', {});
+  // Load bundled Inter typeface — FontMgr.System().matchFamilyStyle returns null on device
+  const typeface = await loadTypeface();
+  if (!typeface) throw new Error('Failed to load Inter typeface from assets/fonts/Inter.ttf');
+
   const fTiny = Skia.Font(typeface, SZ_TINY);
   const fSm   = Skia.Font(typeface, SZ_SM);
   const fMd   = Skia.Font(typeface, SZ_MD);
@@ -154,82 +182,99 @@ export async function generateShareImage(state: GameState): Promise<string> {
 
   const headerBaseline = y + Math.round(SZ_LG * 0.82);
   drawText(canvas, title, PAD, headerBaseline, colors.textPrimary, fLg);
-  const labelW = fMd.measureText(roundLabel).width;
-  drawText(canvas, roundLabel, W - PAD - labelW, headerBaseline - 4, colors.textMuted, fMd);
+  const labelW = fSm.measureText(roundLabel).width;
+  drawText(canvas, roundLabel, W - PAD - labelW, headerBaseline - 2, colors.textMuted, fSm);
 
   y += HEADER_H + GAP;
 
   // ── Team score boxes ─────────────────────────────
-  const BOX_W = (INNER - GAP) / 2;
+  const BOX_W  = (INNER - GAP) / 2;
+  const TRACK_H = 10;
 
   for (let t = 0; t < 2; t++) {
-    const bx = PAD + t * (BOX_W + GAP);
-    const by = y;
+    const bx      = PAD + t * (BOX_W + GAP);
+    const by      = y;
     const isWinner = winner === (t === 0 ? 'A' : 'B');
-    const total = t === 0 ? totals.a : totals.b;
-    const p1 = t === 0 ? players[0] : players[2];
-    const p2 = t === 0 ? players[1] : players[3];
-    const teamLabel = `Team ${t === 0 ? 'A' : 'B'}`;
+    const total   = t === 0 ? totals.a : totals.b;
+    const p1      = t === 0 ? players[0] : players[2];
+    const p2      = t === 0 ? players[1] : players[3];
+    const teamLabel = t === 0 ? 'TEAM A' : 'TEAM B';
 
     canvas.drawRRect(rrect(bx, by, BOX_W, TEAM_BOX_H, 24), mkFill(colors.card));
     canvas.drawRRect(rrect(bx, by, BOX_W, TEAM_BOX_H, 24), mkStroke(isWinner ? colors.accent : colors.border, 2));
 
-    const ipx = bx + 20;
-    let ty = by + Math.round(SZ_TINY * 0.82) + 16;
+    const ipx = bx + 24;
+    const trackW = BOX_W - 48;
 
+    // Top-down flow — advance by ascender before drawing so text doesn't overlap
+    // "TEAM A" label
+    let ty = by + 24 + Math.round(SZ_TINY * 0.82);
     drawText(canvas, teamLabel, ipx, ty, colors.textSubtle, fTiny);
-    ty += SZ_TINY + 8;
+    ty += SZ_TINY + 10;
 
-    const names = `${p1} & ${p2}`;
-    drawText(canvas, names, ipx, ty, colors.textSecondary, fMd);
-    ty += SZ_MD + 16;
+    // Player names
+    drawText(canvas, `${p1} & ${p2}`, ipx, ty, colors.textSecondary, fMd);
+    // Advance far enough to clear the huge score's ascender before drawing it
+    ty += Math.round(SZ_HUGE * 0.82) + 12;
 
+    // Big score
     drawText(canvas, `${total}`, ipx, ty, colors.textPrimary, fHuge);
-    ty += 16;
+    // Clear descenders then leave a small gap before the track
+    ty += Math.round(SZ_HUGE * 0.22) + 16;
 
-    const trackW = BOX_W - 40;
-    const trackH = 14;
-    canvas.drawRRect(rrect(ipx, ty, trackW, trackH, 7), mkFill(colors.border));
+    // Progress bar
+    canvas.drawRRect(rrect(ipx, ty, trackW, TRACK_H, 5), mkFill(colors.border));
     const pct = Math.min(Math.max(total / scoreLimit, 0), 1);
     if (pct > 0) {
-      canvas.drawRRect(rrect(ipx, ty, Math.round(trackW * pct), trackH, 7), mkFill(colors.accent));
+      canvas.drawRRect(rrect(ipx, ty, Math.round(trackW * pct), TRACK_H, 5), mkFill(colors.accent));
     }
-    ty += trackH + 12;
+    ty += TRACK_H + 12;
 
+    // Score limit — right-aligned
     const limitText = `/ ${scoreLimit}`;
     const limitTextW = fTiny.measureText(limitText).width;
-    drawText(canvas, limitText, bx + BOX_W - 20 - limitTextW, ty, colors.textSubtle, fTiny);
+    drawText(canvas, limitText, bx + BOX_W - 24 - limitTextW, ty + Math.round(SZ_TINY * 0.82), colors.textSubtle, fTiny);
   }
 
   y += TEAM_BOX_H + GAP;
 
   // ── Round history ────────────────────────────────
   if (rounds.length > 0) {
-    canvas.drawRRect(rrect(PAD, y, INNER, HISTORY_H, 16), mkFill(colors.card));
-    canvas.drawRRect(rrect(PAD, y, INNER, HISTORY_H, 16), mkStroke(colors.border, 2));
+    canvas.drawRRect(rrect(PAD, y, INNER, HISTORY_H, 20), mkFill(colors.card));
+    canvas.drawRRect(rrect(PAD, y, INNER, HISTORY_H, 20), mkStroke(colors.border, 2));
 
-    const COL_NUM = 36;
-    const COL_DELTA = 50;
-    const COL_CUM = 52;
-    const remainW = INNER - 2 * HISTORY_PANEL_PAD - COL_NUM - 2 * COL_DELTA - 2 * COL_CUM;
+    const hPad = PAD + HISTORY_PANEL_PAD;
+
+    // Section label "ROUND HISTORY"
+    let ry = y + HISTORY_PANEL_PAD + Math.round(SZ_TINY * 0.82);
+    drawText(canvas, 'ROUND HISTORY', hPad, ry, colors.textSubtle, fTiny);
+    ry += HISTORY_SECTION_H;
+
+    // Column layout
+    const COL_NUM   = 40;
+    const COL_DELTA = 56;
+    const COL_CUM   = 60;
+    const remainW   = INNER - 2 * HISTORY_PANEL_PAD - COL_NUM - 2 * COL_DELTA - 2 * COL_CUM;
     const playerColW = Math.floor(remainW / 4);
 
-    let ry = y + HISTORY_PANEL_PAD + Math.round(SZ_TINY * 0.82);
-
-    let rx = PAD + HISTORY_PANEL_PAD;
-    drawText(canvas, '#', rx, ry, colors.textSubtle, fTiny);
-    rx += COL_NUM;
+    // Column headers
+    let rx = hPad;
+    drawText(canvas, '#', rx, ry, colors.textSubtle, fTiny); rx += COL_NUM;
     for (let i = 0; i < 4; i++) {
-      drawText(canvas, players[i].substring(0, 4), rx + i * playerColW, ry, colors.textSubtle, fTiny);
+      drawText(canvas, truncate(players[i], 8), rx + i * playerColW, ry, colors.textSubtle, fTiny);
     }
     rx += 4 * playerColW;
-    for (const [lbl, colW] of [['AΔ', COL_DELTA], ['BΔ', COL_DELTA], ['AΣ', COL_CUM], ['BΣ', COL_CUM]] as [string, number][]) {
+    for (const [lbl, colW] of [
+      ['A \u0394', COL_DELTA], ['B \u0394', COL_DELTA],
+      ['A \u03A3', COL_CUM],  ['B \u03A3', COL_CUM],
+    ] as [string, number][]) {
       drawText(canvas, lbl, rx, ry, colors.textSubtle, fTiny);
       rx += colW;
     }
 
-    ry += HISTORY_HEADER_H;
+    ry += HISTORY_COL_H;
 
+    // Data rows
     for (let idx = 0; idx < rounds.length; idx++) {
       const round = rounds[idx];
       const cum = cumulatives[idx];
@@ -241,14 +286,20 @@ export async function generateShareImage(state: GameState): Promise<string> {
         );
       }
 
-      let cx = PAD + HISTORY_PANEL_PAD;
-      drawText(canvas, `${round.id}`, cx, ry, colors.textMuted, fTiny);
-      cx += COL_NUM;
+      let cx = hPad;
+      drawText(canvas, `${round.id}`, cx, ry, colors.textMuted, fTiny); cx += COL_NUM;
 
       for (let i = 0; i < 4; i++) {
         const e = round.entries[i as PlayerIndex];
         const made = e.obtained >= e.called;
-        drawText(canvas, `${e.called}→${e.obtained}`, cx + i * playerColW, ry, made ? colors.positive : colors.danger, fTiny);
+        drawText(
+          canvas,
+          `${e.called}\u2192${e.obtained}`,
+          cx + i * playerColW,
+          ry,
+          made ? colors.positive : colors.danger,
+          fTiny,
+        );
       }
       cx += 4 * playerColW;
 
@@ -263,36 +314,37 @@ export async function generateShareImage(state: GameState): Promise<string> {
     y += HISTORY_H + GAP;
 
     // ── Player stats ─────────────────────────────────
-    const CARD_W = Math.floor((INNER - 3 * 12) / 4);
-    const CARD_H = STATS_H - 20;
+    const CARD_GAP = 16;
+    const CARD_W   = Math.floor((INNER - 3 * CARD_GAP) / 4);
+    const CARD_H   = STATS_H - 20;
 
     for (let i = 0; i < 4; i++) {
-      const s = stats[i];
+      const s     = stats[i];
       const score = playerCumulativeScore(rounds, i as PlayerIndex);
-      const cx = PAD + i * (CARD_W + 12);
+      const cx    = PAD + i * (CARD_W + CARD_GAP);
 
-      canvas.drawRRect(rrect(cx, y, CARD_W, CARD_H, 16), mkFill(colors.card));
-      canvas.drawRRect(rrect(cx, y, CARD_W, CARD_H, 16), mkStroke(colors.border, 2));
+      canvas.drawRRect(rrect(cx, y, CARD_W, CARD_H, 20), mkFill(colors.card));
+      canvas.drawRRect(rrect(cx, y, CARD_W, CARD_H, 20), mkStroke(colors.border, 2));
 
-      let sy = y + 16 + Math.round(SZ_MD * 0.82);
+      let sy = y + 20 + Math.round(SZ_MD * 0.82);
 
-      const name = players[i].length > 8 ? players[i].substring(0, 7) + '…' : players[i];
-      drawText(canvas, name, cx + 14, sy, colors.textPrimary, fMd);
-      sy += SZ_MD + 6;
+      drawText(canvas, truncate(players[i], 10), cx + 16, sy, colors.textPrimary, fMd);
+      sy += SZ_MD + 8;
 
-      drawText(canvas, i < 2 ? 'Team A' : 'Team B', cx + 14, sy, colors.textSubtle, fTiny);
-      sy += SZ_TINY + 10;
+      drawText(canvas, i < 2 ? 'Team A' : 'Team B', cx + 16, sy, colors.textSubtle, fTiny);
+      sy += SZ_TINY + 14;
 
-      const scoreStr = `${score >= 0 ? '+' : ''}${score}`;
-      drawText(canvas, scoreStr, cx + 14, sy, scoreColor(score), fBase);
-      sy += SZ_BASE + 8;
+      const scoreStr = `${score >= 0 ? '+' : ''}${score} pts`;
+      drawText(canvas, scoreStr, cx + 16, sy, scoreColor(score), fBase);
+      sy += SZ_BASE + 10;
 
       const makeRateColor =
         s.makeRate >= 0.7 ? colors.positive : s.makeRate >= 0.5 ? colors.warn : colors.danger;
-      drawText(canvas, `${Math.round(s.makeRate * 100)}%`, cx + 14, sy, makeRateColor, fSm);
-      sy += SZ_SM + 6;
+      drawText(canvas, `${Math.round(s.makeRate * 100)}%`, cx + 16, sy, makeRateColor, fSm);
+      sy += SZ_SM + 8;
 
-      drawText(canvas, `${s.avgCalled.toFixed(1)} bid`, cx + 14, sy, colors.textMuted, fTiny);
+      const bidWon = `${s.avgCalled.toFixed(1)} bid \u00B7 ${s.avgObtained.toFixed(1)} won`;
+      drawText(canvas, bidWon, cx + 16, sy, colors.textMuted, fTiny);
     }
 
     y += STATS_H;
@@ -301,17 +353,21 @@ export async function generateShareImage(state: GameState): Promise<string> {
   // ── Footer ───────────────────────────────────────
   const footerText = '400 Scorekeeper';
   const footerW = fTiny.measureText(footerText).width;
-  drawText(canvas, footerText, (W - footerW) / 2, y + GAP + Math.round(SZ_TINY * 0.82), colors.textSubtle, fTiny);
+  drawText(
+    canvas,
+    footerText,
+    (W - footerW) / 2,
+    y + GAP + Math.round(SZ_TINY * 0.82),
+    colors.textSubtle,
+    fTiny,
+  );
 
   // ── Encode & write ───────────────────────────────
-  const image = surface.makeImageSnapshot();
+  const image  = surface.makeImageSnapshot();
   const base64 = image.encodeToBase64(ImageFormat.PNG, 100);
-  // Diagnostic — remove after confirming image generation works
-  console.warn(`[generateShareImage] canvas ${W}×${H}, base64 length: ${base64.length}`);
 
   const dir = `${cacheDirectory ?? ''}share-images/`;
   await makeDirectoryAsync(dir, { intermediates: true });
-  // Prune any previous exports so the cache doesn't grow unbounded
   await deleteAsync(dir, { idempotent: true });
   await makeDirectoryAsync(dir, { intermediates: true });
   const path = `${dir}score-${Date.now()}.png`;

@@ -96,10 +96,11 @@ platform :android do
       }
     )
     upload_to_play_store(
-      track: "internal",
       package_name: ENV["APP_IDENTIFIER"],
+      track: "internal",
       release_status: "draft",
-      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      json_key: ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
     )
   end
 end
