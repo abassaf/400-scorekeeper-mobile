@@ -10,7 +10,7 @@ export function SettingsScreen() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const webhookUrl: string = (Constants.expoConfig?.extra?.discordWebhookUrl as string) ?? '';
+  const webhookUrl = (Constants.expoConfig?.extra?.discordWebhookUrl as string | undefined) ?? '';
   const version = Constants.expoConfig?.version ?? 'unknown';
   const buildNumber =
     Platform.OS === 'ios'
@@ -18,7 +18,7 @@ export function SettingsScreen() {
       : Constants.expoConfig?.android?.versionCode?.toString() ?? '';
 
   async function handleSend() {
-    if (!message.trim() || status === 'sending') return;
+    if (!message.trim() || status === 'sending' || !webhookUrl) return;
     setStatus('sending');
     try {
       const platform = `${Device.osName ?? Platform.OS} ${Device.osVersion ?? ''} / ${Device.modelName ?? 'unknown'}`.trim();
@@ -54,6 +54,7 @@ export function SettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
         <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '700', marginBottom: 20 }}>Settings</Text>
 
+        {webhookUrl ? (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Send Feedback</Text>
           <TextInput
@@ -73,7 +74,7 @@ export function SettingsScreen() {
             placeholder="What's on your mind?"
             placeholderTextColor={colors.textMuted}
             value={message}
-            onChangeText={setMessage}
+            onChangeText={(t) => { setMessage(t); if (status === 'error') setStatus('idle'); }}
             maxLength={1000}
           />
           <TextInput
@@ -116,6 +117,7 @@ export function SettingsScreen() {
             <Text style={{ color: colors.danger, fontSize: 13, marginTop: 10, textAlign: 'center' }}>Failed to send — check your connection</Text>
           )}
         </View>
+        ) : null}
 
         <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>About</Text>
