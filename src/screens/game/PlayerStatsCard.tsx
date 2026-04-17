@@ -19,10 +19,12 @@ export function PlayerStatsCard({ state }: Props) {
             {([colStart, colStart + 1] as PlayerIndex[]).map((idx) => {
               const s = playerStats(rounds, idx);
               const score = playerCumulativeScore(rounds, idx);
+              const isTeamA = idx < 2;
+              const teamColors = isTeamA ? colors.teamA : colors.teamB;
               return (
-                <View key={idx} style={{ backgroundColor: 'rgba(39,39,42,0.5)', borderRadius: 10, padding: 10 }}>
+                <View key={idx} style={{ backgroundColor: teamColors.bg, borderRadius: 10, padding: 10, borderWidth: 1, borderColor: teamColors.border }}>
                   <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{players[idx]}</Text>
-                  <Text style={{ color: colors.textSubtle, fontSize: 11, marginBottom: 6 }}>{idx < 2 ? 'Team A' : 'Team B'}</Text>
+                  <Text style={{ color: teamColors.text, fontSize: 11, marginBottom: 6 }}>{isTeamA ? 'Team A' : 'Team B'}</Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
                     <Text style={{ color: colors.textMuted, fontSize: 11 }}>Score</Text>
                     <Text style={{ color: score >= 0 ? colors.positive : colors.danger, fontSize: 11, fontWeight: '600' }}>{score >= 0 ? '+' : ''}{score}</Text>
@@ -46,8 +48,8 @@ export function PlayerStatsCard({ state }: Props) {
         ))}
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border }}>
-        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Team A: <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>{totals.a}</Text></Text>
-        <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Team B: <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>{totals.b}</Text></Text>
+        <Text style={{ color: colors.teamA.text, fontSize: 13 }}>Team A: <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>{totals.a}</Text></Text>
+        <Text style={{ color: colors.teamB.text, fontSize: 13 }}>Team B: <Text style={{ color: colors.textPrimary, fontWeight: '600' }}>{totals.b}</Text></Text>
       </View>
     </View>
   );

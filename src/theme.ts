@@ -1,11 +1,11 @@
 export const colors = {
   bg: '#09090b',
-  card: '#18181b',
-  border: '#27272a',
+  card: '#212127',
+  border: '#52525b',
   borderMuted: '#3f3f46',
   textPrimary: '#ffffff',
-  textSecondary: '#a1a1aa',
-  textMuted: '#71717a',
+  textSecondary: '#d4d4d8',
+  textMuted: '#a1a1aa',
   textSubtle: '#52525b',
   accent: '#10b981',
   accentHover: '#059669',
@@ -15,4 +15,16 @@ export const colors = {
   positive: '#34d399',
   buttonPrimary: '#ffffff',
   buttonPrimaryText: '#09090b',
+  teamA: {
+    bg:     'rgba(59,130,246,0.12)',
+    border: 'rgba(59,130,246,0.35)',
+    text:   '#93c5fd',
+    solid:  '#3b82f6',
+  },
+  teamB: {
+    bg:     'rgba(244,63,94,0.12)',
+    border: 'rgba(244,63,94,0.35)',
+    text:   '#fda4af',
+    solid:  '#f43f5e',
+  },
 };
