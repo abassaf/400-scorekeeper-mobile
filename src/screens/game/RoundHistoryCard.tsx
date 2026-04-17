@@ -7,7 +7,7 @@ import { EditRoundModal } from '../../components/EditRoundModal';
 
 interface Props {
   state: GameState;
-  dispatch: React.Dispatch<GameAction>;
+  dispatch?: React.Dispatch<GameAction>;
 }
 const PLAYER_INDICES: PlayerIndex[] = [0, 1, 2, 3];
 
@@ -35,7 +35,7 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
             {['AΔ','BΔ','AΣ','BΣ'].map((h) => <Text key={h} style={{ width: 36, color: colors.textSubtle, fontSize: 10, fontWeight: '600', textAlign: 'right' }}>{h}</Text>)}
           </View>
           {display.map(({ round, cum }, rowIdx) => (
-            <Pressable key={round.id} onPress={() => setEditingRound(round)} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
+            <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
               <View style={{ width: 24, flexDirection: 'row', alignItems: 'center' }}>
                 {round.comment ? <Text style={{ fontSize: 8, color: colors.textMuted, marginRight: 2 }}>●</Text> : null}
                 <Text style={{ fontSize: 11, color: colors.textMuted }}>{round.id}</Text>
@@ -49,19 +49,21 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
           ))}
         </View>
       </ScrollView>
-      <EditRoundModal
-        visible={editingRound !== null}
-        round={editingRound}
-        players={state.players}
-        onSave={(roundId, entries, comment) => {
-          dispatch({ type: 'EDIT_ROUND', roundId, entries });
-          if (comment !== (editingRound?.comment ?? '')) {
-            dispatch({ type: 'EDIT_ROUND_COMMENT', roundId, comment });
-          }
-          setEditingRound(null);
-        }}
-        onClose={() => setEditingRound(null)}
-      />
+      {dispatch != null && (
+        <EditRoundModal
+          visible={editingRound !== null}
+          round={editingRound}
+          players={state.players}
+          onSave={(roundId, entries, comment) => {
+            dispatch({ type: 'EDIT_ROUND', roundId, entries });
+            if (comment !== (editingRound?.comment ?? '')) {
+              dispatch({ type: 'EDIT_ROUND_COMMENT', roundId, comment });
+            }
+            setEditingRound(null);
+          }}
+          onClose={() => setEditingRound(null)}
+        />
+      )}
     </View>
   );
 }
