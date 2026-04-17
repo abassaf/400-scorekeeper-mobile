@@ -10,7 +10,10 @@
     "splash": { "backgroundColor": "#09090b" },
     "ios": {
       "bundleIdentifier": "com.abassaf.fourhundredscorekeeper",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.abassaf.fourhundredscorekeeper",
