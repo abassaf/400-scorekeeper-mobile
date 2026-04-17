@@ -5,9 +5,14 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { colors } from '../../theme';
 
+function isValidEmail(e: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+}
+
 export function SettingsScreen() {
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const feedbackEndpoint = (Constants.expoConfig?.extra?.feedbackEndpoint as string | undefined) ?? '';
@@ -19,6 +24,11 @@ export function SettingsScreen() {
 
   async function handleSend() {
     if (!message.trim() || status === 'sending' || !feedbackEndpoint) return;
+    if (email.trim() && !isValidEmail(email.trim())) {
+      setEmailError('Enter a valid email address');
+      return;
+    }
+    setEmailError('');
     setStatus('sending');
     try {
       const platform = `${Device.osName ?? Platform.OS} ${Device.osVersion ?? ''} / ${Device.modelName ?? 'unknown'}`.trim();
@@ -67,7 +77,7 @@ export function SettingsScreen() {
             placeholder="What's on your mind?"
             placeholderTextColor={colors.textMuted}
             value={message}
-            onChangeText={(t) => { setMessage(t); if (status === 'error') setStatus('idle'); }}
+            onChangeText={(t) => { setMessage(t); if (status !== 'idle') setStatus('idle'); }}
             maxLength={1000}
           />
           <TextInput
@@ -84,10 +94,15 @@ export function SettingsScreen() {
             placeholder="Email (optional)"
             placeholderTextColor={colors.textMuted}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(t) => { setEmail(t); setEmailError(''); if (status !== 'idle') setStatus('idle'); }}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={254}
           />
+          {emailError ? (
+            <Text style={{ color: colors.danger, fontSize: 12, marginTop: -8, marginBottom: 8 }}>{emailError}</Text>
+          ) : null}
           <Pressable
             onPress={handleSend}
             disabled={!message.trim() || status === 'sending'}

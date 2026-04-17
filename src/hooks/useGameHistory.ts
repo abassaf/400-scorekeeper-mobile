@@ -57,7 +57,8 @@ const HISTORY_KEY = '400-scorekeeper-history';
 
 export function useGameHistory(): {
   history: HistoryEntry[];
-  saveGame: (state: GameState) => Promise<void>;
+  saveGame: (state: GameState) => Promise<string | undefined>;
+  updateGame: (id: string, state: GameState) => Promise<void>;
   deleteGame: (id: string) => Promise<void>;
   clearAll: () => Promise<void>;
   loading: boolean;
@@ -93,16 +94,32 @@ export function useGameHistory(): {
     setHistory(entries);
   }, []);
 
-  const saveGame = useCallback(async (state: GameState) => {
+  const saveGame = useCallback(async (state: GameState): Promise<string | undefined> => {
     if (state.phase === 'setup' || state.rounds.length === 0) return;
     try {
       const entry = buildHistoryEntry(state);
       const next = [entry, ...history];
       await persist(next);
+      return entry.id;
     } catch {
       console.warn('Failed to save game to history');
     }
   }, [history, persist]);
+
+  const updateGame = useCallback(async (id: string, state: GameState): Promise<void> => {
+    try {
+      const raw = await storage.getItem(HISTORY_KEY);
+      const current: HistoryEntry[] = raw
+        ? (JSON.parse(raw) as unknown[]).filter(isValidHistoryEntry)
+        : [];
+      const next = current.map((e) =>
+        e.id === id ? { ...e, rounds: state.rounds, winner: state.winner } : e,
+      );
+      await persist(next);
+    } catch {
+      console.warn('Failed to update game in history');
+    }
+  }, [persist]);
 
   const deleteGame = useCallback(async (id: string) => {
     try {
@@ -122,5 +139,5 @@ export function useGameHistory(): {
     }
   }, []);
 
-  return { history, saveGame, deleteGame, clearAll, loading, reload: load };
+  return { history, saveGame, updateGame, deleteGame, clearAll, loading, reload: load };
 }

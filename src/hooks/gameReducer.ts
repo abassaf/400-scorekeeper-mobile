@@ -12,8 +12,7 @@ export type GameAction =
   | { type: 'NEW_GAME' }
   | { type: 'KEEP_PLAYING' }
   | { type: 'LOAD_STATE'; state: GameState }
-  | { type: 'EDIT_ROUND'; roundId: number; entries: Round['entries']; comment?: string }
-  | { type: 'EDIT_ROUND_COMMENT'; roundId: number; comment: string };
+  | { type: 'EDIT_ROUND'; roundId: number; entries: Round['entries']; comment?: string };
 
 // ---------------------------------------------------------------------------
 // Initial state
@@ -190,19 +189,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         rounds: newRounds,
         phase: winner !== null ? 'finished' : 'playing',
         winner,
-      };
-    }
-
-    case 'EDIT_ROUND_COMMENT': {
-      const idx = state.rounds.findIndex((r) => r.id === action.roundId);
-      if (idx === -1) return state;
-      const updatedRound: Round = {
-        ...state.rounds[idx],
-        comment: action.comment.trim().slice(0, 200),
-      };
-      return {
-        ...state,
-        rounds: [...state.rounds.slice(0, idx), updatedRound, ...state.rounds.slice(idx + 1)],
       };
     }
 
