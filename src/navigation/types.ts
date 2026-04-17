@@ -10,7 +10,12 @@ export type HistoryStackParamList = {
   HistoryDetail: { entry: import('../hooks/useGameHistory').HistoryEntry };
 };
 
+export type SettingsStackParamList = {
+  Settings: undefined;
+};
+
 export type RootTabParamList = {
   GameTab: NavigatorScreenParams<GameStackParamList>;
   HistoryTab: NavigatorScreenParams<HistoryStackParamList>;
+  SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
 };

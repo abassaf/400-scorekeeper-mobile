@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { RootTabParamList } from './types';
 import { GameNavigator } from './GameNavigator';
 import { HistoryNavigator } from './HistoryNavigator';
+import { SettingsNavigator } from './SettingsNavigator';
 import { colors } from '../theme';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -47,6 +48,16 @@ export function RootTabs() {
               size={size}
               color={color}
             />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="SettingsTab"
+        component={SettingsNavigator}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={size} color={color} />
           ),
         }}
       />
