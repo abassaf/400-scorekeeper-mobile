@@ -18,7 +18,12 @@ default_platform(:ios)
 platform :ios do
   desc "Sync certificates and provisioning profiles"
   lane :certs do
-    match(type: "appstore")
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"]
+    )
+    match(type: "appstore", api_key: api_key)
   end
 
   desc "Build and upload to App Store"
@@ -28,6 +33,11 @@ platform :ios do
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
       key_filepath: ENV["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"]
     )
+    unlock_keychain(
+      path: "login.keychain",
+      password: ENV["KEYCHAIN_PASSWORD"]
+    )
+    sh("security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k #{ENV["KEYCHAIN_PASSWORD"].shellescape} #{File.expand_path("~/Library/Keychains/login.keychain-db").shellescape}")
     app_id = ENV["APP_IDENTIFIER"]
     match(type: "appstore", readonly: true, api_key: api_key)
     update_code_signing_settings(
