@@ -30,13 +30,13 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View>
           <View style={{ flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 6, marginBottom: 4 }}>
-            <Text style={{ width: 24, color: colors.textSubtle, fontSize: 10, fontWeight: '600' }}>#</Text>
+            <Text style={{ width: 32, color: colors.textSubtle, fontSize: 10, fontWeight: '600' }}>#</Text>
             {players.map((name, i) => <Text key={i} style={{ width: 60, color: colors.textSubtle, fontSize: 10, fontWeight: '600', textAlign: 'right' }} numberOfLines={1}>{name.split(' ')[0]}</Text>)}
             {['AΔ','BΔ','AΣ','BΣ'].map((h) => <Text key={h} style={{ width: 36, color: colors.textSubtle, fontSize: 10, fontWeight: '600', textAlign: 'right' }}>{h}</Text>)}
           </View>
           {display.map(({ round, cum }, rowIdx) => (
             <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
-              <View style={{ width: 24, flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ width: 32, flexDirection: 'row', alignItems: 'center' }}>
                 {round.comment ? <Text style={{ fontSize: 8, color: colors.textMuted, marginRight: 2 }}>●</Text> : null}
                 <Text style={{ fontSize: 11, color: colors.textMuted }}>{round.id}</Text>
               </View>
@@ -55,10 +55,7 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
           round={editingRound}
           players={state.players}
           onSave={(roundId, entries, comment) => {
-            dispatch({ type: 'EDIT_ROUND', roundId, entries });
-            if (comment !== (editingRound?.comment ?? '')) {
-              dispatch({ type: 'EDIT_ROUND_COMMENT', roundId, comment });
-            }
+            dispatch({ type: 'EDIT_ROUND', roundId, entries, comment: comment || undefined });
             setEditingRound(null);
           }}
           onClose={() => setEditingRound(null)}
