@@ -12,7 +12,7 @@ export type GameAction =
   | { type: 'NEW_GAME' }
   | { type: 'KEEP_PLAYING' }
   | { type: 'LOAD_STATE'; state: GameState }
-  | { type: 'EDIT_ROUND'; roundId: number; entries: Round['entries'] }
+  | { type: 'EDIT_ROUND'; roundId: number; entries: Round['entries']; comment?: string }
   | { type: 'EDIT_ROUND_COMMENT'; roundId: number; comment: string };
 
 // ---------------------------------------------------------------------------
@@ -170,6 +170,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         entries: clampedEntries,
         teamAScore,
         teamBScore,
+        ...('comment' in action ? { comment: action.comment?.trim().slice(0, 200) } : {}),
       };
       const newRounds = [...state.rounds.slice(0, idx), updatedRound, ...state.rounds.slice(idx + 1)];
       const totals = runningTotals(newRounds);

@@ -24,7 +24,7 @@ export function EditRoundModal({ visible, round, players, onSave, onClose }: Pro
   const [comment, setComment] = useState('');
 
   useEffect(() => {
-    if (round) {
+    if (round && visible) {
       setEntries([
         { ...round.entries[0] },
         { ...round.entries[1] },
@@ -33,7 +33,7 @@ export function EditRoundModal({ visible, round, players, onSave, onClose }: Pro
       ]);
       setComment(round.comment ?? '');
     }
-  }, [round]);
+  }, [round, visible]);
 
   if (!round) return null;
 
