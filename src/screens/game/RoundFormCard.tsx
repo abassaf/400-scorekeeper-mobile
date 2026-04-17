@@ -16,7 +16,7 @@ const PLAYER_INDICES: PlayerIndex[] = [0, 1, 2, 3];
 type FormState = [{ called: number; obtained: number }, { called: number; obtained: number }, { called: number; obtained: number }, { called: number; obtained: number }];
 
 function emptyForm(): FormState {
-  return [{ called: 1, obtained: 0 }, { called: 1, obtained: 0 }, { called: 1, obtained: 0 }, { called: 1, obtained: 0 }];
+  return [{ called: 2, obtained: 0 }, { called: 2, obtained: 0 }, { called: 2, obtained: 0 }, { called: 2, obtained: 0 }];
 }
 
 export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props) {
@@ -29,9 +29,13 @@ export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props
   }
 
   const obtainedSum = PLAYER_INDICES.reduce<number>((sum, i) => sum + fields[i].obtained, 0);
-  const sumColor = obtainedSum === 13 ? colors.positive : obtainedSum > 13 ? colors.warn : colors.textMuted;
+  const calledSum = PLAYER_INDICES.reduce<number>((sum, i) => sum + fields[i].called, 0);
+  const obtainedColor = obtainedSum === 13 ? colors.positive : obtainedSum > 13 ? colors.warn : colors.textMuted;
+  const calledColor = calledSum >= 11 ? colors.positive : colors.warn;
+  const canSubmit = calledSum >= 11 && obtainedSum <= 13;
 
   async function handleSubmit() {
+    if (!canSubmit) return;
     if (Platform.OS !== 'web') {
       try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
     }
@@ -57,7 +61,7 @@ export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props
               <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>Team {team}</Text>
               {indices.map((i) => (
                 <View key={i} style={{ gap: 8 }}>
-                  <NumberStepper value={fields[i].called} min={1} max={13} onChange={(v) => update(i, 'called', v)} label={players[i]} sublabel="Called" />
+                  <NumberStepper value={fields[i].called} min={2} max={13} onChange={(v) => update(i, 'called', v)} label={players[i]} sublabel="Called" />
                   <NumberStepper value={fields[i].obtained} min={0} max={13} onChange={(v) => update(i, 'obtained', v)} sublabel="Obtained" />
                 </View>
               ))}
@@ -65,15 +69,18 @@ export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props
           );
         })}
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-        <Text style={{ color: sumColor, fontSize: 12 }}>Obtained: {obtainedSum} / 13</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+      <View style={{ marginTop: 16, gap: 4 }}>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <Text style={{ color: calledColor, fontSize: 12 }}>Bids: {calledSum} {calledSum < 11 ? `(min 11)` : '✓'}</Text>
+          <Text style={{ color: obtainedColor, fontSize: 12 }}>Obtained: {obtainedSum} / 13</Text>
+        </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
           {roundsPlayed > 0 && (
             <Pressable onPress={handleUndo} accessibilityLabel="Undo last round" accessibilityRole="button" style={{ backgroundColor: colors.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 }}>
               <Text style={{ color: colors.textSecondary, fontSize: 13 }}>Undo</Text>
             </Pressable>
           )}
-          <Pressable onPress={handleSubmit} accessibilityLabel="Add round" accessibilityRole="button" style={{ backgroundColor: colors.buttonPrimary, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10 }}>
+          <Pressable onPress={handleSubmit} disabled={!canSubmit} accessibilityLabel="Add round" accessibilityRole="button" style={{ backgroundColor: colors.buttonPrimary, borderRadius: 10, paddingHorizontal: 20, paddingVertical: 10, opacity: canSubmit ? 1 : 0.4 }}>
             <Text style={{ color: colors.buttonPrimaryText, fontWeight: '700', fontSize: 13 }}>Add Round</Text>
           </Pressable>
         </View>

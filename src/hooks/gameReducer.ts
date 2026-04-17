@@ -35,7 +35,7 @@ function clamp(value: number, min: number, max: number): number {
 
 function clampEntry(entry: PlayerEntry): PlayerEntry {
   return {
-    called: clamp(entry.called, 1, 13),
+    called: clamp(entry.called, 2, 13),
     obtained: clamp(entry.obtained, 0, 13),
   };
 }
