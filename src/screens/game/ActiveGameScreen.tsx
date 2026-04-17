@@ -73,7 +73,7 @@ export function ActiveGameScreen({ state, dispatch }: Props) {
             onUndo={() => dispatch({ type: 'UNDO_ROUND' })}
           />
         )}
-        <RoundHistoryCard state={state} />
+        <RoundHistoryCard state={state} dispatch={dispatch} />
         <PlayerStatsCard state={state} />
       </ScrollView>
       {captureModal}

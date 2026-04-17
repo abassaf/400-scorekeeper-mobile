@@ -1,5 +1,5 @@
 import { calcRound, runningTotals, playerScore } from '../scoring';
-import type { GameState, PlayerEntry, PlayerIndex } from '../types';
+import type { GameState, PlayerEntry, PlayerIndex, Round } from '../types';
 
 // ---------------------------------------------------------------------------
 // Action types
@@ -11,7 +11,9 @@ export type GameAction =
   | { type: 'UNDO_ROUND' }
   | { type: 'NEW_GAME' }
   | { type: 'KEEP_PLAYING' }
-  | { type: 'LOAD_STATE'; state: GameState };
+  | { type: 'LOAD_STATE'; state: GameState }
+  | { type: 'EDIT_ROUND'; roundId: number; entries: Round['entries'] }
+  | { type: 'EDIT_ROUND_COMMENT'; roundId: number; comment: string };
 
 // ---------------------------------------------------------------------------
 // Initial state
@@ -150,6 +152,56 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         rounds: newRounds,
         winner,
         phase: winner !== null ? 'finished' : 'playing',
+      };
+    }
+
+    case 'EDIT_ROUND': {
+      const idx = state.rounds.findIndex((r) => r.id === action.roundId);
+      if (idx === -1) return state;
+      const clampedEntries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry] = [
+        clampEntry(action.entries[0]),
+        clampEntry(action.entries[1]),
+        clampEntry(action.entries[2]),
+        clampEntry(action.entries[3]),
+      ];
+      const { teamAScore, teamBScore } = calcRound(clampedEntries);
+      const updatedRound: Round = {
+        ...state.rounds[idx],
+        entries: clampedEntries,
+        teamAScore,
+        teamBScore,
+      };
+      const newRounds = [...state.rounds.slice(0, idx), updatedRound, ...state.rounds.slice(idx + 1)];
+      const totals = runningTotals(newRounds);
+      const { scoreLimit } = state;
+      const aCanWin = canWin(totals.a, scoreLimit, newRounds, [0, 1]);
+      const bCanWin = canWin(totals.b, scoreLimit, newRounds, [2, 3]);
+      let winner: 'A' | 'B' | null = null;
+      if (aCanWin && bCanWin) {
+        winner = totals.a >= totals.b ? 'A' : 'B';
+      } else if (aCanWin) {
+        winner = 'A';
+      } else if (bCanWin) {
+        winner = 'B';
+      }
+      return {
+        ...state,
+        rounds: newRounds,
+        phase: winner !== null ? 'finished' : 'playing',
+        winner,
+      };
+    }
+
+    case 'EDIT_ROUND_COMMENT': {
+      const idx = state.rounds.findIndex((r) => r.id === action.roundId);
+      if (idx === -1) return state;
+      const updatedRound: Round = {
+        ...state.rounds[idx],
+        comment: action.comment.trim().slice(0, 200),
+      };
+      return {
+        ...state,
+        rounds: [...state.rounds.slice(0, idx), updatedRound, ...state.rounds.slice(idx + 1)],
       };
     }
 
