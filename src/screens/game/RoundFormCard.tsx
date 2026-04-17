@@ -56,9 +56,10 @@ export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props
       <View style={{ flexDirection: 'row', gap: 12 }}>
         {(['A', 'B'] as const).map((team) => {
           const indices = team === 'A' ? ([0, 1] as const) : ([2, 3] as const);
+          const teamColors = team === 'A' ? colors.teamA : colors.teamB;
           return (
-            <View key={team} style={{ flex: 1, gap: 16 }}>
-              <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>Team {team}</Text>
+            <View key={team} style={{ flex: 1, gap: 16, backgroundColor: teamColors.bg, borderRadius: 10, padding: 8 }}>
+              <Text style={{ color: teamColors.text, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center' }}>Team {team}</Text>
               {indices.map((i) => (
                 <View key={i} style={{ gap: 8 }}>
                   <NumberStepper value={fields[i].called} min={2} max={13} onChange={(v) => update(i, 'called', v)} label={players[i]} sublabel="Called" />

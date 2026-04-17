@@ -36,10 +36,11 @@ export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
           const p1 = team === 'A' ? players[0] : players[2];
           const p2 = team === 'A' ? players[1] : players[3];
           const blocked = team === 'A' ? aBlocked : bBlocked;
+          const teamColors = team === 'A' ? colors.teamA : colors.teamB;
           return (
-            <View key={team} style={{ flex: 1 }}>
+            <View key={team} style={{ flex: 1, backgroundColor: teamColors.bg, borderWidth: 1, borderColor: teamColors.border, borderRadius: 12, padding: 10 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 }}>
+                <Text style={{ color: teamColors.text, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 }}>
                   Team {team}
                 </Text>
                 {blocked && (
@@ -51,7 +52,7 @@ export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
               <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 2 }}>{p1} & {p2}</Text>
               <Text style={{ color: colors.textPrimary, fontSize: 36, fontWeight: '700', marginTop: 6 }}>{total}</Text>
               <View style={{ marginTop: 8 }}>
-                <ScoreProgressBar value={total} limit={scoreLimit} />
+                <ScoreProgressBar value={total} limit={scoreLimit} fillColor={teamColors.solid} />
               </View>
               <Text style={{ color: colors.textSubtle, fontSize: 10, textAlign: 'right', marginTop: 2 }}>/ {scoreLimit}</Text>
             </View>
