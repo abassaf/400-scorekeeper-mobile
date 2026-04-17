@@ -35,7 +35,7 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
             {['AΔ','BΔ','AΣ','BΣ'].map((h) => <Text key={h} style={{ width: 36, color: colors.textSubtle, fontSize: 10, fontWeight: '600', textAlign: 'right' }}>{h}</Text>)}
           </View>
           {display.map(({ round, cum }, rowIdx) => (
-            <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
+            <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} accessibilityRole={dispatch ? 'button' : undefined} accessibilityLabel={dispatch ? `Edit round ${round.id}` : undefined} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
               <View style={{ width: 32, flexDirection: 'row', alignItems: 'center' }}>
                 {round.comment ? <Text style={{ fontSize: 8, color: colors.textMuted, marginRight: 2 }}>●</Text> : null}
                 <Text style={{ fontSize: 11, color: colors.textMuted }}>{round.id}</Text>

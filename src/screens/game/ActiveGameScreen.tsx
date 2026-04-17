@@ -15,22 +15,37 @@ import { colors } from '../../theme';
 interface Props { state: GameState; dispatch: React.Dispatch<GameAction>; }
 
 export function ActiveGameScreen({ state, dispatch }: Props) {
-  const { saveGame } = useGameHistory();
+  const { saveGame, updateGame } = useGameHistory();
   const { showShareSheet, captureModal } = useShare();
   const savedRef = useRef(false);
+  const savedGameIdRef = useRef<string | null>(null);
 
   React.useEffect(() => {
-    if (state.phase === 'finished' && !savedRef.current) {
-      savedRef.current = true;
-      saveGame(state);
+    if (state.phase === 'finished') {
+      if (!savedRef.current) {
+        savedRef.current = true;
+        saveGame(state).then((id) => {
+          if (id) savedGameIdRef.current = id;
+        });
+      } else if (savedGameIdRef.current) {
+        updateGame(savedGameIdRef.current, state);
+      }
     }
-    if (state.phase !== 'finished') savedRef.current = false;
-  }, [state.phase, state, saveGame]);
+    if (state.phase !== 'finished') {
+      savedRef.current = false;
+      savedGameIdRef.current = null;
+    }
+  }, [state.phase, state, saveGame, updateGame]);
 
   const handleSave = useCallback(async () => {
-    await saveGame(state);
+    if (savedGameIdRef.current) {
+      await updateGame(savedGameIdRef.current, state);
+    } else {
+      const id = await saveGame(state);
+      if (id) savedGameIdRef.current = id;
+    }
     Alert.alert('Saved', 'Game saved to history.');
-  }, [state, saveGame]);
+  }, [state, saveGame, updateGame]);
 
   const handleNewGame = useCallback(() => {
     if (state.phase === 'playing' && state.rounds.length > 0) {
