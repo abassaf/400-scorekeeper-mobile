@@ -10,6 +10,7 @@ export interface Round {
   entries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry];
   teamAScore: number;  // adjusted score this round
   teamBScore: number;
+  comment?: string;
 }
 
 export interface GameState {
