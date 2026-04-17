@@ -28,13 +28,14 @@ platform :ios do
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
       key_filepath: ENV["APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"]
     )
+    app_id = ENV["APP_IDENTIFIER"]
     match(type: "appstore", readonly: true, api_key: api_key)
     update_code_signing_settings(
       use_automatic_signing: false,
-      team_id: "X5FF3SWL39",
+      team_id: ENV["APPLE_TEAM_ID"],
       code_sign_identity: "Apple Distribution",
-      profile_name: "match AppStore com.abassaf.fourhundredscorekeeper",
-      bundle_identifier: "com.abassaf.fourhundredscorekeeper",
+      profile_name: "match AppStore #{app_id}",
+      bundle_identifier: app_id,
       path: "ios/400Scorekeeper.xcodeproj"
     )
     increment_build_number(xcodeproj: "ios/400Scorekeeper.xcodeproj")
@@ -55,6 +56,12 @@ end
 platform :android do
   desc "Build and upload to Google Play"
   lane :release do
+    keystore_src = File.expand_path("~/.fastlane/api_keys/400scorekeeper.keystore")
+    keystore_dst = File.expand_path("../android/400scorekeeper.keystore", __dir__)
+    FileUtils.cp(keystore_src, keystore_dst) if File.exist?(keystore_src)
+    UI.important("Keystore copied from ~/.fastlane/api_keys/") if File.exist?(keystore_src)
+    UI.error("Keystore not found at #{keystore_src}") unless File.exist?(keystore_src)
+
     gradle(
       task: "bundle",
       build_type: "Release",
