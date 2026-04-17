@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated } from 'react-native';
+import { colors } from '../theme';
 
 interface ScoreProgressBarProps {
   value: number;
   limit: number;
+  fillColor?: string;
 }
 
-export function ScoreProgressBar({ value, limit }: ScoreProgressBarProps) {
+export function ScoreProgressBar({ value, limit, fillColor }: ScoreProgressBarProps) {
   const animValue = useRef(new Animated.Value(0)).current;
 
   const pct = limit > 0 ? Math.min(Math.max(value / limit, 0), 1) : 0;
@@ -28,8 +30,7 @@ export function ScoreProgressBar({ value, limit }: ScoreProgressBarProps) {
   return (
     <View className="h-2 rounded-full bg-zinc-800 overflow-hidden">
       <Animated.View
-        style={{ width }}
-        className="h-2 rounded-full bg-emerald-500"
+        style={{ width, height: 8, borderRadius: 999, backgroundColor: fillColor ?? colors.accent }}
       />
     </View>
   );
