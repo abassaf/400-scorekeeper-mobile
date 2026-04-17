@@ -10,7 +10,7 @@ export function SettingsScreen() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const webhookUrl = (Constants.expoConfig?.extra?.discordWebhookUrl as string | undefined) ?? '';
+  const feedbackEndpoint = (Constants.expoConfig?.extra?.feedbackEndpoint as string | undefined) ?? '';
   const version = Constants.expoConfig?.version ?? 'unknown';
   const buildNumber =
     Platform.OS === 'ios'
@@ -18,27 +18,20 @@ export function SettingsScreen() {
       : Constants.expoConfig?.android?.versionCode?.toString() ?? '';
 
   async function handleSend() {
-    if (!message.trim() || status === 'sending' || !webhookUrl) return;
+    if (!message.trim() || status === 'sending' || !feedbackEndpoint) return;
     setStatus('sending');
     try {
       const platform = `${Device.osName ?? Platform.OS} ${Device.osVersion ?? ''} / ${Device.modelName ?? 'unknown'}`.trim();
       const versionLabel = buildNumber ? `${version} (build ${buildNumber})` : version;
-      const body = {
-        embeds: [{
-          title: '400 Scorekeeper — App Feedback',
-          color: 5793266,
-          fields: [
-            { name: 'Message', value: message.trim(), inline: false },
-            { name: 'Email (optional)', value: email.trim() || 'None', inline: true },
-            { name: 'App Version', value: versionLabel, inline: true },
-            { name: 'Platform', value: platform, inline: true },
-          ],
-        }],
-      };
-      const res = await fetch(webhookUrl, {
+      const res = await fetch(feedbackEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          message: message.trim(),
+          email: email.trim() || 'None',
+          version: versionLabel,
+          platform,
+        }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setStatus('success');
@@ -54,7 +47,7 @@ export function SettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
         <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '700', marginBottom: 20 }}>Settings</Text>
 
-        {webhookUrl ? (
+        {feedbackEndpoint ? (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
           <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Send Feedback</Text>
           <TextInput

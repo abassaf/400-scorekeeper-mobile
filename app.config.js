@@ -4,7 +4,7 @@ export default {
   expo: {
     ...base,
     extra: {
-      discordWebhookUrl: process.env.DISCORD_WEBHOOK_URL ?? '',
+      feedbackEndpoint: 'https://400-scorekeeper-feedback.anthonyassaf.workers.dev/',
     },
   },
 };
