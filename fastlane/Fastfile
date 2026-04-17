@@ -62,6 +62,18 @@ platform :android do
     UI.important("Keystore copied from ~/.fastlane/api_keys/") if File.exist?(keystore_src)
     UI.error("Keystore not found at #{keystore_src}") unless File.exist?(keystore_src)
 
+    current_codes = google_play_track_version_codes(
+      package_name: ENV["APP_IDENTIFIER"],
+      track: "internal",
+      json_key: ENV["SUPPLY_JSON_KEY"]
+    )
+    next_code = (current_codes.max || 0) + 1
+    gradle_path = File.expand_path("../android/app/build.gradle", __dir__)
+    content = File.read(gradle_path)
+    content.gsub!(/versionCode\s+\d+/, "versionCode #{next_code}")
+    File.write(gradle_path, content)
+    UI.success("Version code set to #{next_code}")
+
     gradle(
       task: "bundle",
       build_type: "Release",
@@ -75,6 +87,8 @@ platform :android do
     )
     upload_to_play_store(
       track: "internal",
+      package_name: ENV["APP_IDENTIFIER"],
+      release_status: "draft",
       aab: "android/app/build/outputs/bundle/release/app-release.aab"
     )
   end
