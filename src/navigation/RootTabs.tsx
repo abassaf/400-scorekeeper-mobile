@@ -5,11 +5,13 @@ import type { RootTabParamList } from './types';
 import { GameNavigator } from './GameNavigator';
 import { HistoryNavigator } from './HistoryNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export function RootTabs() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
