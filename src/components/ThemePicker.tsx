@@ -10,7 +10,7 @@ const themeOptions: ReadonlyArray<{
   icon: React.ComponentProps<typeof Ionicons>['name'];
   accessibilityLabel: string;
 }> = [
-  { mode: 'light',  label: 'Light',  icon: 'sun-outline',            accessibilityLabel: 'Light theme' },
+  { mode: 'light',  label: 'Light',  icon: 'sunny-outline',          accessibilityLabel: 'Light theme' },
   { mode: 'dark',   label: 'Dark',   icon: 'moon-outline',           accessibilityLabel: 'Dark theme' },
   { mode: 'system', label: 'System', icon: 'phone-portrait-outline', accessibilityLabel: 'System theme' },
 ];
