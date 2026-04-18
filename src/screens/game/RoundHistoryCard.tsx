@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
+import type { ThemeColors } from '../../theme';
 import type { GameState, PlayerIndex, Round } from '../../types';
 import type { GameAction } from '../../hooks/gameReducer';
 import { EditRoundModal } from '../../components/EditRoundModal';
@@ -11,10 +12,11 @@ interface Props {
 }
 const PLAYER_INDICES: PlayerIndex[] = [0, 1, 2, 3];
 
-function scoreColor(s: number) { return s > 0 ? colors.positive : s < 0 ? colors.danger : colors.textSecondary; }
+function scoreColor(s: number, colors: ThemeColors) { return s > 0 ? colors.positive : s < 0 ? colors.danger : colors.textSecondary; }
 function fmt(s: number) { return s > 0 ? `+${s}` : `${s}`; }
 
 export function RoundHistoryCard({ state, dispatch }: Props) {
+  const { colors } = useTheme();
   const { rounds, players } = state;
   const [editingRound, setEditingRound] = useState<Round | null>(null);
 
@@ -35,14 +37,14 @@ export function RoundHistoryCard({ state, dispatch }: Props) {
             {['AΔ','BΔ','AΣ','BΣ'].map((h) => <Text key={h} style={{ width: 36, color: colors.textSubtle, fontSize: 10, fontWeight: '600', textAlign: 'right' }}>{h}</Text>)}
           </View>
           {display.map(({ round, cum }, rowIdx) => (
-            <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} accessibilityRole={dispatch ? 'button' : undefined} accessibilityLabel={dispatch ? `Edit round ${round.id}` : undefined} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
+            <Pressable key={round.id} onPress={dispatch ? () => setEditingRound(round) : undefined} accessibilityRole={dispatch ? 'button' : undefined} accessibilityLabel={dispatch ? `Edit round ${round.id}` : undefined} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={{ flexDirection: 'row', paddingVertical: 5, backgroundColor: rowIdx % 2 === 1 ? colors.tableRowAlt : 'transparent' }}>
               <View style={{ width: 32, flexDirection: 'row', alignItems: 'center' }}>
                 {round.comment ? <Text style={{ fontSize: 8, color: colors.textMuted, marginRight: 2 }}>●</Text> : null}
                 <Text style={{ fontSize: 11, color: colors.textMuted }}>{round.id}</Text>
               </View>
               {PLAYER_INDICES.map((i) => { const e = round.entries[i]; const made = e.obtained >= e.called; return <Text key={i} style={{ width: 60, fontSize: 11, textAlign: 'right', color: made ? colors.positive : colors.danger }}>{e.called}→{e.obtained}</Text>; })}
-              <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: scoreColor(round.teamAScore) }}>{fmt(round.teamAScore)}</Text>
-              <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: scoreColor(round.teamBScore) }}>{fmt(round.teamBScore)}</Text>
+              <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: scoreColor(round.teamAScore, colors) }}>{fmt(round.teamAScore)}</Text>
+              <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: scoreColor(round.teamBScore, colors) }}>{fmt(round.teamBScore)}</Text>
               <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: colors.textPrimary, fontWeight: '600' }}>{cum.a}</Text>
               <Text style={{ width: 36, fontSize: 11, textAlign: 'right', color: colors.textPrimary, fontWeight: '600' }}>{cum.b}</Text>
             </Pressable>

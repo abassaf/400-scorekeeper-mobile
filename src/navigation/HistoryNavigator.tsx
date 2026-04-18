@@ -3,11 +3,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { HistoryStackParamList } from './types';
 import { HistoryListScreen } from '../screens/history/HistoryListScreen';
 import { HistoryDetailScreen } from '../screens/history/HistoryDetailScreen';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<HistoryStackParamList>();
 
 export function HistoryNavigator() {
+  const { colors } = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{

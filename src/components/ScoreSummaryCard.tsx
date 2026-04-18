@@ -2,7 +2,8 @@ import React, { forwardRef } from 'react';
 import { View, Text } from 'react-native';
 import type { GameState, PlayerIndex } from '../types';
 import { runningTotals, playerStats, playerCumulativeScore } from '../scoring';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
+import type { ThemeColors } from '../theme';
 
 interface ScoreSummaryCardProps {
   state: GameState;
@@ -15,7 +16,7 @@ function clampedPct(value: number, limit: number): string {
   return `${Math.min(Math.max((value / limit) * 100, 0), 100)}%`;
 }
 
-function scoreColor(score: number): string {
+function scoreColor(score: number, colors: ThemeColors): string {
   if (score > 0) return colors.positive;
   if (score < 0) return colors.danger;
   return colors.textSecondary;
@@ -27,6 +28,7 @@ function formatDelta(score: number): string {
 
 export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
   ({ state }, ref) => {
+    const { colors } = useTheme();
     const { players, rounds, scoreLimit } = state;
     const totals = runningTotals(rounds);
     const stats = PLAYER_INDICES.map((i) => playerStats(rounds, i));
@@ -115,7 +117,7 @@ export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
             {rounds.map((round, idx) => {
               const cum = cumulatives[idx];
               return (
-                <View key={round.id} style={{ flexDirection: 'row', paddingVertical: 3, backgroundColor: idx % 2 === 1 ? 'rgba(39,39,42,0.4)' : 'transparent' }}>
+                <View key={round.id} style={{ flexDirection: 'row', paddingVertical: 3, backgroundColor: idx % 2 === 1 ? colors.tableRowAlt : 'transparent' }}>
                   <Text style={{ width: 20, color: colors.textMuted, fontSize: 9 }}>{round.id}</Text>
                   {PLAYER_INDICES.map((i) => {
                     const e = round.entries[i];
@@ -126,10 +128,10 @@ export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
                       </Text>
                     );
                   })}
-                  <Text style={{ width: 24, color: scoreColor(round.teamAScore), fontSize: 9, textAlign: 'right' }}>
+                  <Text style={{ width: 24, color: scoreColor(round.teamAScore, colors), fontSize: 9, textAlign: 'right' }}>
                     {formatDelta(round.teamAScore)}
                   </Text>
-                  <Text style={{ width: 24, color: scoreColor(round.teamBScore), fontSize: 9, textAlign: 'right' }}>
+                  <Text style={{ width: 24, color: scoreColor(round.teamBScore, colors), fontSize: 9, textAlign: 'right' }}>
                     {formatDelta(round.teamBScore)}
                   </Text>
                   <Text style={{ width: 24, color: colors.textPrimary, fontSize: 9, fontWeight: '600', textAlign: 'right' }}>{cum.a}</Text>
@@ -151,7 +153,7 @@ export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
                 <View key={i} style={{ flex: 1, backgroundColor: colors.card, borderRadius: 8, padding: 8, borderWidth: 1, borderColor: colors.border }}>
                   <Text style={{ color: colors.textPrimary, fontSize: 10, fontWeight: '600' }} numberOfLines={1}>{players[i]}</Text>
                   <Text style={{ color: colors.textSubtle, fontSize: 9, marginBottom: 4 }}>{i < 2 ? 'Team A' : 'Team B'}</Text>
-                  <Text style={{ color: scoreColor(score), fontSize: 11, fontWeight: '700' }}>{score >= 0 ? '+' : ''}{score}</Text>
+                  <Text style={{ color: scoreColor(score, colors), fontSize: 11, fontWeight: '700' }}>{score >= 0 ? '+' : ''}{score}</Text>
                   <Text style={{ color: makeRateColor, fontSize: 10, fontWeight: '600' }}>{Math.round(s.makeRate * 100)}%</Text>
                   <Text style={{ color: colors.textMuted, fontSize: 9 }}>{s.avgCalled.toFixed(1)} bid</Text>
                 </View>

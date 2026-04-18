@@ -11,12 +11,13 @@ import { ScoreHeaderCard } from '../game/ScoreHeaderCard';
 import { RoundHistoryCard } from '../game/RoundHistoryCard';
 import { PlayerStatsCard } from '../game/PlayerStatsCard';
 import { WinnerBannerCard } from '../game/WinnerBannerCard';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { GameState } from '../../types';
 
 type Props = NativeStackScreenProps<HistoryStackParamList, 'HistoryDetail'>;
 
 export function HistoryDetailScreen({ route, navigation }: Props) {
+  const { colors } = useTheme();
   const { entry } = route.params;
   const state: GameState = { phase: entry.winner ? 'finished' : 'playing', players: entry.players, scoreLimit: entry.scoreLimit, rounds: entry.rounds, winner: entry.winner };
   const { showShareSheet, captureModal } = useShare();
@@ -70,7 +71,7 @@ export function HistoryDetailScreen({ route, navigation }: Props) {
             accessibilityRole="button"
             style={{ backgroundColor: colors.accent, borderRadius: 12, padding: 14, alignItems: 'center' }}
           >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>
+            <Text style={{ color: colors.accentText, fontWeight: '700', fontSize: 15 }}>
               {entry.winner ? 'Load into Game' : 'Continue Game'}
             </Text>
           </Pressable>
