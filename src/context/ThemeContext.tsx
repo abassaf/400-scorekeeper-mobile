@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 import { darkColors, lightColors, type ThemeColors } from '../theme';
 import { storage } from '../storage';
 
@@ -25,7 +24,6 @@ function isThemeMode(v: string | null): v is ThemeMode {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useColorScheme();
-  const { setColorScheme: nwSetColorScheme } = useNativeWindColorScheme();
 
   const [mode, setModeState] = useState<ThemeMode>('system');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -50,11 +48,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const effectiveMode = mode === 'system' ? (systemScheme ?? 'dark') : mode;
-
-  // Sync NativeWind class-based dark mode whenever effectiveMode changes
-  useEffect(() => {
-    nwSetColorScheme(effectiveMode);
-  }, [effectiveMode, nwSetColorScheme]);
 
   const colors = effectiveMode === 'dark' ? darkColors : lightColors;
 
