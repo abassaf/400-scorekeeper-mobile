@@ -37,7 +37,6 @@ yarn-error.*
 *.tsbuildinfo
 
 # generated native folders
-/ios
 /android
 
 # AI assistant context files
@@ -61,3 +60,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Superpowers brainstorming sessions
+.superpowers/
