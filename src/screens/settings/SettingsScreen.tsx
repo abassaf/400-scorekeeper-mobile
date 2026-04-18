@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useTheme } from '../../context/ThemeContext';
+import { ThemePicker } from '../../components/ThemePicker';
 
 function isValidEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -57,6 +58,14 @@ export function SettingsScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
         <Text style={{ color: colors.textPrimary, fontSize: 22, fontWeight: '700', marginBottom: 20 }}>Settings</Text>
+
+        {/* Appearance card */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+          <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+            Appearance
+          </Text>
+          <ThemePicker />
+        </View>
 
         {feedbackEndpoint ? (
         <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
