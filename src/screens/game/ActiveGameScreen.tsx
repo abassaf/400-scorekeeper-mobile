@@ -10,11 +10,12 @@ import { RoundFormCard } from './RoundFormCard';
 import { RoundHistoryCard } from './RoundHistoryCard';
 import { PlayerStatsCard } from './PlayerStatsCard';
 import { WinnerBannerCard } from './WinnerBannerCard';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Props { state: GameState; dispatch: React.Dispatch<GameAction>; }
 
 export function ActiveGameScreen({ state, dispatch }: Props) {
+  const { colors } = useTheme();
   const { saveGame, updateGame } = useGameHistory();
   const { showShareSheet, captureModal } = useShare();
   const savedRef = useRef(false);

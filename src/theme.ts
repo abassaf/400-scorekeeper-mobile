@@ -68,5 +68,5 @@ export const lightColors = {
 
 export type ThemeColors = typeof darkColors;
 
-// Temporary compatibility shim — remove after all consumers migrated to useTheme()
+// Compat shim for non-component utilities (e.g. generateShareImage) that cannot use hooks
 export const colors = darkColors;

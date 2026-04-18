@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, Pressable } from 'react-native';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 import { NumberStepper } from './NumberStepper';
 import type { Round, PlayerEntry } from '../types';
 
@@ -15,6 +15,7 @@ interface Props {
 type Entries = [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry];
 
 export function EditRoundModal({ visible, round, players, onSave, onClose }: Props) {
+  const { colors } = useTheme();
   const [entries, setEntries] = useState<Entries>([
     { called: 2, obtained: 0 },
     { called: 2, obtained: 0 },

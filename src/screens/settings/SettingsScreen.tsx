@@ -3,13 +3,14 @@ import { View, Text, TextInput, Pressable, ScrollView, Platform } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 
 function isValidEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 }
 
 export function SettingsScreen() {
+  const { colors } = useTheme();
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -114,7 +115,7 @@ export function SettingsScreen() {
               opacity: !message.trim() || status === 'sending' ? 0.45 : 1,
             }}
           >
-            <Text style={{ color: '#000', fontWeight: '700', fontSize: 14 }}>
+            <Text style={{ color: colors.accentText, fontWeight: '700', fontSize: 14 }}>
               {status === 'sending' ? 'Sending…' : 'Send Feedback'}
             </Text>
           </Pressable>
