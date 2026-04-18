@@ -3,13 +3,14 @@ import { View, Text, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { runningTotals } from '../../scoring';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { GameState } from '../../types';
 import type { GameAction } from '../../hooks/useGameState';
 
 interface Props { state: GameState; dispatch: React.Dispatch<GameAction>; onShare: () => void; }
 
 export function WinnerBannerCard({ state, dispatch, onShare }: Props) {
+  const { colors } = useTheme();
   if (state.phase !== 'finished' || state.winner === null) return null;
   const totals = runningTotals(state.rounds);
   const { winner, players } = state;

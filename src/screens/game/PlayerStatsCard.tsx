@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { playerStats, playerCumulativeScore, runningTotals } from '../../scoring';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
+import type { ThemeColors } from '../../theme';
 import type { GameState, PlayerIndex } from '../../types';
 
 interface Props { state: GameState; }
-function makeRateColor(r: number) { return r >= 0.7 ? colors.positive : r >= 0.5 ? colors.warn : colors.danger; }
+
+function makeRateColor(r: number, colors: ThemeColors) { return r >= 0.7 ? colors.positive : r >= 0.5 ? colors.warn : colors.danger; }
 
 export function PlayerStatsCard({ state }: Props) {
+  const { colors } = useTheme();
   const { rounds, players } = state;
   const totals = runningTotals(rounds);
   return (
@@ -31,7 +34,7 @@ export function PlayerStatsCard({ state }: Props) {
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
                     <Text style={{ color: colors.textMuted, fontSize: 11 }}>Make%</Text>
-                    <Text style={{ color: makeRateColor(s.makeRate), fontSize: 11, fontWeight: '600' }}>{Math.round(s.makeRate * 100)}%</Text>
+                    <Text style={{ color: makeRateColor(s.makeRate, colors), fontSize: 11, fontWeight: '600' }}>{Math.round(s.makeRate * 100)}%</Text>
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
                     <Text style={{ color: colors.textMuted, fontSize: 11 }}>Avg bid</Text>

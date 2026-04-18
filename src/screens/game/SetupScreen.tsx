@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import type { GameState } from '../../types';
 import type { GameAction } from '../../hooks/useGameState';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Props {
   state: GameState;
@@ -17,6 +17,7 @@ interface Props {
 const DEFAULTS: [string, string, string, string] = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
 
 export function SetupScreen({ dispatch }: Props) {
+  const { colors } = useTheme();
   const [names, setNames] = useState<[string, string, string, string]>(['', '', '', '']);
   const [scoreLimitRaw, setScoreLimitRaw] = useState('80');
 
