@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 
 interface NumberStepperProps {
   value: number;
@@ -13,6 +13,8 @@ interface NumberStepperProps {
 }
 
 export function NumberStepper({ value, min, max, onChange, label, sublabel }: NumberStepperProps) {
+  const { colors } = useTheme();
+
   async function step(delta: number) {
     const next = Math.min(Math.max(value + delta, min), max);
     if (next === value) return;
@@ -31,10 +33,10 @@ export function NumberStepper({ value, min, max, onChange, label, sublabel }: Nu
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#3f3f46',
+    backgroundColor: colors.borderMuted,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#52525b',
+    borderColor: colors.border,
   };
 
   return (

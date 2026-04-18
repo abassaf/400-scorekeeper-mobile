@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { runningTotals, playerCumulativeScore } from '../../scoring';
 import { ScoreProgressBar } from '../../components/ScoreProgressBar';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { GameState } from '../../types';
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
+  const { colors } = useTheme();
   const { players, scoreLimit, rounds, phase } = state;
   const totals = runningTotals(rounds);
 

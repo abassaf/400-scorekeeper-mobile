@@ -5,7 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useGameHistory, type HistoryEntry } from '../../hooks/useGameHistory';
 import { runningTotals } from '../../scoring';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { HistoryStackParamList } from '../../navigation/types';
 
 type Nav = NativeStackNavigationProp<HistoryStackParamList, 'HistoryList'>;
@@ -15,6 +15,7 @@ function formatDate(ts: number) {
 }
 
 function HistoryItem({ entry, onPress, onLongPress }: { entry: HistoryEntry; onPress: () => void; onLongPress: () => void }) {
+  const { colors } = useTheme();
   const totals = runningTotals(entry.rounds);
   const label = entry.winner
     ? `Team ${entry.winner} won, ${totals.a} to ${totals.b}, played ${formatDate(entry.completedAt)}`
@@ -49,6 +50,7 @@ function HistoryItem({ entry, onPress, onLongPress }: { entry: HistoryEntry; onP
 }
 
 export function HistoryListScreen() {
+  const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
   const { history, deleteGame, clearAll, loading, reload } = useGameHistory();
   const [refreshing, setRefreshing] = useState(false);

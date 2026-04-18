@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { NumberStepper } from '../../components/NumberStepper';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import type { PlayerEntry, PlayerIndex } from '../../types';
 
 interface Props {
@@ -20,6 +20,7 @@ function emptyForm(): FormState {
 }
 
 export function RoundFormCard({ players, roundsPlayed, onSubmit, onUndo }: Props) {
+  const { colors } = useTheme();
   const [fields, setFields] = useState<FormState>(emptyForm);
 
   function update(index: PlayerIndex, key: 'called' | 'obtained', value: number) {
