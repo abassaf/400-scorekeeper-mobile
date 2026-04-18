@@ -11,6 +11,7 @@
     "ios": {
       "bundleIdentifier": "com.abassaf.fourhundredscorekeeper",
       "supportsTablet": false,
+      "userInterfaceStyle": "automatic",
       "config": {
         "usesNonExemptEncryption": false
       }
