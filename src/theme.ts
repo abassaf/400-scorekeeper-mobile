@@ -43,7 +43,7 @@ export const lightColors = {
   textSubtle: '#94a3b8',
   accent: '#059669',
   accentHover: '#047857',
-  accentText: '#000000',
+  accentText: '#ffffff',
   danger: '#dc2626',
   dangerBg: 'rgba(220,38,38,0.10)',
   warn: '#ca8a04',
