@@ -20,7 +20,7 @@ export function RootTabs() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
         },
-        tabBarActiveTintColor: colors.accent,
+        tabBarActiveTintColor: colors.accentFg,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarHideOnKeyboard: true,
       }}

@@ -79,7 +79,7 @@ export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
               accessibilityRole="button"
               style={{ backgroundColor: colors.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}
             >
-              <Text style={{ color: colors.accent, fontSize: 12 }}>Save</Text>
+              <Text style={{ color: colors.accentFg, fontSize: 12 }}>Save</Text>
             </Pressable>
           )}
           <Pressable
