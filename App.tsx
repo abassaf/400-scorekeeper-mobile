@@ -4,9 +4,12 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootTabs } from './src/navigation/RootTabs';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { GameProvider } from './src/context/GameContext';
+import { useGameState } from './src/hooks/useGameState';
 
 function AppNavigation() {
   const { colors, isDark } = useTheme();
+  const { state, dispatch } = useGameState();
 
   const navTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),
@@ -22,9 +25,11 @@ function AppNavigation() {
   };
 
   return (
-    <NavigationContainer theme={navTheme}>
-      <RootTabs />
-    </NavigationContainer>
+    <GameProvider state={state} dispatch={dispatch}>
+      <NavigationContainer theme={navTheme}>
+        <RootTabs />
+      </NavigationContainer>
+    </GameProvider>
   );
 }
 

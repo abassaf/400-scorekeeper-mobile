@@ -4,13 +4,13 @@ import { useRoute, type RouteProp } from '@react-navigation/native';
 import type { GameStackParamList } from './types';
 import { SetupScreen } from '../screens/game/SetupScreen';
 import { ActiveGameScreen } from '../screens/game/ActiveGameScreen';
-import { useGameState } from '../hooks/useGameState';
+import { useGameContext } from '../context/GameContext';
 import type { GameState } from '../types';
 
 const Stack = createNativeStackNavigator<GameStackParamList>();
 
 function GameScreen() {
-  const { state, dispatch } = useGameState();
+  const { state, dispatch } = useGameContext();
   const route = useRoute<RouteProp<GameStackParamList, 'Game'>>();
 
   React.useEffect(() => {
