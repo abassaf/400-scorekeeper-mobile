@@ -74,6 +74,17 @@ export function stateToDeepLink(state: GameState): string {
   return `fourhundredscorekeeper://?state=${encoded}`;
 }
 
+export function deepLinkToState(url: string): GameState | null {
+  try {
+    const match = url.match(/[?&]state=([^&]*)/);
+    if (!match) return null;
+    const decoded: unknown = JSON.parse(atob(decodeURIComponent(match[1])));
+    return isValidState(decoded) ? decoded : null;
+  } catch {
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Reducer
 // ---------------------------------------------------------------------------
