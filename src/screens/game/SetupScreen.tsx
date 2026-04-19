@@ -8,6 +8,8 @@ import * as Haptics from 'expo-haptics';
 import type { GameState } from '../../types';
 import type { GameAction } from '../../hooks/useGameState';
 import { useTheme } from '../../context/ThemeContext';
+import { useGameHistory } from '../../hooks/useGameHistory';
+import { useImportLink } from '../../hooks/useImportLink';
 
 interface Props {
   state: GameState;
@@ -18,6 +20,8 @@ const DEFAULTS: [string, string, string, string] = ['Player 1', 'Player 2', 'Pla
 
 export function SetupScreen({ dispatch }: Props) {
   const { colors } = useTheme();
+  const { saveGame } = useGameHistory();
+  const { linkText, setLinkText, handleImport } = useImportLink({ state, dispatch, saveGame });
   const [names, setNames] = useState<[string, string, string, string]>(['', '', '', '']);
   const [scoreLimitRaw, setScoreLimitRaw] = useState('80');
 
@@ -137,6 +141,42 @@ export function SetupScreen({ dispatch }: Props) {
               Start Game
             </Text>
           </Pressable>
+
+          {/* Import Game Link */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={{ color: colors.textSubtle, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              Import Game Link
+            </Text>
+            <TextInput
+              style={[inputStyle, { marginBottom: 10 }]}
+              value={linkText}
+              onChangeText={setLinkText}
+              placeholder="Paste a game link here"
+              placeholderTextColor={colors.textSubtle}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={handleImport}
+              accessibilityLabel="Game link input"
+            />
+            <Pressable
+              onPress={handleImport}
+              disabled={!linkText.trim()}
+              accessibilityLabel="Import game"
+              accessibilityRole="button"
+              style={{
+                backgroundColor: colors.buttonPrimary,
+                borderRadius: 14,
+                padding: 14,
+                alignItems: 'center',
+                opacity: !linkText.trim() ? 0.4 : 1,
+              }}
+            >
+              <Text style={{ color: colors.buttonPrimaryText, fontWeight: '700', fontSize: 15 }}>
+                Import Game
+              </Text>
+            </Pressable>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
