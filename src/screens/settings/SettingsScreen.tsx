@@ -5,6 +5,9 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useTheme } from '../../context/ThemeContext';
 import { ThemePicker } from '../../components/ThemePicker';
+import { useGameContext } from '../../context/GameContext';
+import { useGameHistory } from '../../hooks/useGameHistory';
+import { useImportLink } from '../../hooks/useImportLink';
 
 function isValidEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
@@ -12,6 +15,9 @@ function isValidEmail(e: string): boolean {
 
 export function SettingsScreen() {
   const { colors } = useTheme();
+  const { state, dispatch } = useGameContext();
+  const { saveGame } = useGameHistory();
+  const { linkText, setLinkText, handleImport } = useImportLink({ state, dispatch, saveGame });
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -65,6 +71,51 @@ export function SettingsScreen() {
             Appearance
           </Text>
           <ThemePicker />
+        </View>
+
+        {/* Import Game Link card */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+          <Text style={{ color: colors.textSubtle, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+            Import Game Link
+          </Text>
+          <TextInput
+            style={{
+              backgroundColor: colors.bg,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: colors.border,
+              color: colors.textPrimary,
+              padding: 12,
+              fontSize: 14,
+              marginBottom: 10,
+            }}
+            value={linkText}
+            onChangeText={setLinkText}
+            placeholder="Paste a game link here"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="done"
+            onSubmitEditing={handleImport}
+            accessibilityLabel="Game link input"
+          />
+          <Pressable
+            onPress={handleImport}
+            disabled={!linkText.trim()}
+            accessibilityRole="button"
+            accessibilityLabel="Import game"
+            style={{
+              backgroundColor: colors.accent,
+              borderRadius: 10,
+              paddingVertical: 12,
+              alignItems: 'center',
+              opacity: !linkText.trim() ? 0.45 : 1,
+            }}
+          >
+            <Text style={{ color: colors.accentText, fontWeight: '700', fontSize: 14 }}>
+              Import Game
+            </Text>
+          </Pressable>
         </View>
 
         {feedbackEndpoint ? (
