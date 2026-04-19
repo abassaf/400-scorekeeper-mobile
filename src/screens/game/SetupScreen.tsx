@@ -18,7 +18,7 @@ interface Props {
 
 const DEFAULTS: [string, string, string, string] = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
 
-export function SetupScreen({ dispatch }: Props) {
+export function SetupScreen({ state, dispatch }: Props) {
   const { colors } = useTheme();
   const { saveGame } = useGameHistory();
   const { linkText, setLinkText, handleImport } = useImportLink({ state, dispatch, saveGame });
