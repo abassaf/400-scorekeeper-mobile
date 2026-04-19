@@ -19,7 +19,7 @@ export function ThemePicker() {
   const { mode, setMode, colors } = useTheme();
 
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: colors.bg, borderRadius: 10, borderWidth: 1, borderColor: colors.border, padding: 4 }}>
+    <View style={{ flexDirection: 'row', backgroundColor: colors.borderMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border, padding: 4 }}>
       {themeOptions.map((option) => {
         const selected = mode === option.mode;
         const fg = selected ? colors.accentText : colors.textSecondary;
