@@ -133,7 +133,7 @@ export function SetupScreen({ dispatch }: Props) {
               opacity: scoreLimitInvalid ? 0.5 : 1,
             }}
           >
-            <Text style={{ color: colors.buttonPrimaryText, fontWeight: '700', fontSize: 16 }}>
+            <Text style={{ color: scoreLimitInvalid ? colors.textMuted : colors.buttonPrimaryText, fontWeight: '700', fontSize: 16 }}>
               Start Game
             </Text>
           </Pressable>
