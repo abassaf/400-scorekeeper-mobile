@@ -9,7 +9,7 @@ import {
 } from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import { runningTotals, playerStats, playerCumulativeScore } from '../scoring';
-import { colors } from '../theme';
+import type { ThemeColors } from '../theme';
 import type { GameState, PlayerIndex } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -78,7 +78,7 @@ function rrect(x: number, y: number, w: number, h: number, r: number) {
   return Skia.RRectXY(Skia.XYWHRect(x, y, w, h), r, r);
 }
 
-function scoreColor(score: number) {
+function scoreColor(score: number, colors: ThemeColors) {
   if (score > 0) return colors.positive;
   if (score < 0) return colors.danger;
   return colors.textSecondary;
@@ -108,7 +108,7 @@ async function loadTypeface(): Promise<SkTypeface | null> {
   return _cachedTypeface;
 }
 
-export async function generateShareImage(state: GameState): Promise<string> {
+export async function generateShareImage(state: GameState, colors: ThemeColors): Promise<string> {
   const { players, rounds, scoreLimit, winner } = state;
 
   const totals = runningTotals(rounds);
@@ -303,8 +303,8 @@ export async function generateShareImage(state: GameState): Promise<string> {
       }
       cx += 4 * playerColW;
 
-      drawText(canvas, fmtDelta(round.teamAScore), cx, ry, scoreColor(round.teamAScore), fTiny); cx += COL_DELTA;
-      drawText(canvas, fmtDelta(round.teamBScore), cx, ry, scoreColor(round.teamBScore), fTiny); cx += COL_DELTA;
+      drawText(canvas, fmtDelta(round.teamAScore), cx, ry, scoreColor(round.teamAScore, colors), fTiny); cx += COL_DELTA;
+      drawText(canvas, fmtDelta(round.teamBScore), cx, ry, scoreColor(round.teamBScore, colors), fTiny); cx += COL_DELTA;
       drawText(canvas, `${cum.a}`, cx, ry, colors.textPrimary, fTiny); cx += COL_CUM;
       drawText(canvas, `${cum.b}`, cx, ry, colors.textPrimary, fTiny);
 
@@ -335,7 +335,7 @@ export async function generateShareImage(state: GameState): Promise<string> {
       sy += SZ_TINY + 14;
 
       const scoreStr = `${score >= 0 ? '+' : ''}${score} pts`;
-      drawText(canvas, scoreStr, cx + 16, sy, scoreColor(score), fBase);
+      drawText(canvas, scoreStr, cx + 16, sy, scoreColor(score, colors), fBase);
       sy += SZ_BASE + 10;
 
       const makeRateColor =

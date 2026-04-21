@@ -3,6 +3,7 @@ import { Alert, Platform, Share } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { stateToDeepLink } from './gameReducer';
 import { generateShareImage } from '../utils/generateShareImage';
+import { colors } from '../theme';
 import type { GameState } from '../types';
 
 export function useShare(): {
@@ -19,7 +20,7 @@ export function useShare(): {
     if (sharing) return;
     setSharing(true);
     try {
-      const uri = await generateShareImage(state);
+      const uri = await generateShareImage(state, colors);
 
       if (Platform.OS === 'ios') {
         await Share.share({ url: uri });
