@@ -69,6 +69,3 @@ export const lightColors = {
 };
 
 export type ThemeColors = typeof darkColors;
-
-// Compat shim for non-component utilities (e.g. generateShareImage) that cannot use hooks
-export const colors = darkColors;
