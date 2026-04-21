@@ -3,7 +3,7 @@ import { Alert, Platform, Share } from 'react-native';
 import * as Sharing from 'expo-sharing';
 import { stateToDeepLink } from './gameReducer';
 import { generateShareImage } from '../utils/generateShareImage';
-import { colors } from '../theme';
+import { useTheme } from '../context/ThemeContext';
 import type { GameState } from '../types';
 
 export function useShare(): {
@@ -14,6 +14,7 @@ export function useShare(): {
   showShareSheet: (state: GameState) => void;
 } {
   const [sharing, setSharing] = useState(false);
+  const { colors } = useTheme();
   const captureModal: React.ReactNode = null;
 
   const shareImage = useCallback(async (state: GameState) => {
@@ -42,7 +43,7 @@ export function useShare(): {
     } finally {
       setSharing(false);
     }
-  }, [sharing]);
+  }, [sharing, colors]);
 
   const shareLink = useCallback(async (state: GameState) => {
     const url = stateToDeepLink(state);
