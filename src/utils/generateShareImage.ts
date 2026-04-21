@@ -140,7 +140,7 @@ export async function generateShareImage(state: GameState, colors: ThemeColors):
 
   // Player stats cards — name + team + score (pts) + make% + bid·won
   const STATS_H    = rounds.length > 0 ? 260 : 0;
-  const FOOTER_H   = 56;
+  const FOOTER_H   = 80;
 
   const H =
     PAD +
@@ -351,16 +351,14 @@ export async function generateShareImage(state: GameState, colors: ThemeColors):
   }
 
   // ── Footer ───────────────────────────────────────
-  const footerText = '400 Scorekeeper';
-  const footerW = fTiny.measureText(footerText).width;
-  drawText(
-    canvas,
-    footerText,
-    (W - footerW) / 2,
-    y + GAP + Math.round(SZ_TINY * 0.82),
-    colors.textSubtle,
-    fTiny,
-  );
+  const footerLine1 = '400 Scorekeeper';
+  const footerLine2 = 'by Anthony Assaf';
+  const footer1W = fSm.measureText(footerLine1).width;
+  const footer2W = fTiny.measureText(footerLine2).width;
+  const footerY1 = y + GAP + Math.round(SZ_SM * 0.82);
+  const footerY2 = footerY1 + SZ_SM + 6;
+  drawText(canvas, footerLine1, (W - footer1W) / 2, footerY1, colors.textMuted, fSm);
+  drawText(canvas, footerLine2, (W - footer2W) / 2, footerY2, colors.textSubtle, fTiny);
 
   // ── Encode & write ───────────────────────────────
   const image  = surface.makeImageSnapshot();
