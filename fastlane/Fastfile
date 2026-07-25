@@ -107,6 +107,9 @@ platform :android do
       track: "internal",
       release_status: "completed",
       aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      # A leftover sideload APK in build/outputs makes supply see both an apk
+      # and an aab and refuse to upload. We always ship the aab.
+      skip_upload_apk: true,
       json_key: ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
     )
   end
