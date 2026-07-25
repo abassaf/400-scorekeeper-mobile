@@ -2,6 +2,7 @@ import './global.css';
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { RootTabs } from './src/navigation/RootTabs';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { GameProvider } from './src/context/GameContext';
@@ -36,9 +37,11 @@ function AppNavigation() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <AppNavigation />
-      </ThemeProvider>
+      <KeyboardProvider>
+        <ThemeProvider>
+          <AppNavigation />
+        </ThemeProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, ScrollView,
-  KeyboardAvoidingView, Platform, Switch,
+  View, Text, TextInput, Pressable, Platform, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import * as Haptics from 'expo-haptics';
 import type { GameState } from '../../types';
 import type { GameAction } from '../../hooks/useGameState';
@@ -56,11 +56,8 @@ export function SetupScreen({ state, dispatch }: Props) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
+        <KeyboardAwareScrollView
+          bottomOffset={24}
           contentContainerStyle={{ padding: 20 }}
           keyboardShouldPersistTaps="handled"
         >
@@ -206,8 +203,7 @@ export function SetupScreen({ state, dispatch }: Props) {
               </Text>
             </Pressable>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

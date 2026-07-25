@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Modal, View, Text, TextInput, Pressable } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useTheme } from '../context/ThemeContext';
 import { NumberStepper } from './NumberStepper';
 import type { Round, PlayerEntry } from '../types';
@@ -69,10 +70,6 @@ export function EditRoundModal({ visible, round, players, onSave, onClose }: Pro
       statusBarTranslucent
       navigationBarTranslucent
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' }}>
         <View style={{
           maxHeight: '90%',
@@ -90,7 +87,7 @@ export function EditRoundModal({ visible, round, players, onSave, onClose }: Pro
             </Pressable>
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <KeyboardAwareScrollView bottomOffset={24} keyboardShouldPersistTaps="handled">
           <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
             <View style={{ flex: 1 }}>
               <Text style={{ color: colors.textSubtle, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8, textAlign: 'center' }}>Team A</Text>
@@ -155,10 +152,9 @@ export function EditRoundModal({ visible, round, players, onSave, onClose }: Pro
           >
             <Text style={{ color: canSubmit ? colors.buttonPrimaryText : colors.textMuted, fontSize: 15, fontWeight: '700' }}>Save</Text>
           </Pressable>
-          </ScrollView>
+          </KeyboardAwareScrollView>
         </View>
       </View>
-      </KeyboardAvoidingView>
     </Modal>
   );
 }

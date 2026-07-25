@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
+import { View, Text, TextInput, Pressable, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useTheme } from '../../context/ThemeContext';
@@ -62,8 +63,8 @@ export function SettingsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
+      <KeyboardAwareScrollView
+        bottomOffset={24}
         contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -199,8 +200,7 @@ export function SettingsScreen() {
             400 Scorekeeper · v{version}{buildNumber ? ` (${buildNumber})` : ''}
           </Text>
         </View>
-      </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
