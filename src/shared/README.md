@@ -32,25 +32,49 @@ so previously saved games and shared deep links deserialise unchanged and read a
 
 ## Working on this code
 
-Edit it from whichever consumer repo you happen to be in — the subtree is a real working
-copy, not a read-only mount.
+**Edit here, in this repo. The `src/shared/` mounts in the consumers are pull-only.**
+
+Local clone lives at `~/Developer/400-scorekeeper-scoring`.
 
 ```sh
-# from either consumer repo, after editing src/shared/**
-pnpm scoring:push     # git subtree push --prefix src/shared shared main
+# 1. change the rule here
+cd ~/Developer/400-scorekeeper-scoring
+$EDITOR scoring.ts
+git commit -am "..." && git push
 
-# in the other consumer repo
-pnpm scoring:pull     # git subtree pull --prefix src/shared shared main --squash
+# 2. pull it into both consumers
+cd ~/Developer/400-scorekeeper-mobile && pnpm scoring:pull && pnpm test
+cd ~/Developer/400-scorekeeper       && pnpm scoring:pull && pnpm build
 ```
 
-Run the tests from the mobile repo (`pnpm test`) before pushing — that is the only place
-they execute.
+The mobile repo is the only place the tests execute — run `pnpm test` there after every pull.
 
-First-time mount in a new consumer:
+### Do not edit `src/shared/**` inside a consumer repo
+
+`git subtree push` rewrites commits during the split, so a pushed change comes back on the
+next pull as a *second, unrelated* commit touching the same lines. A later revert then merges
+incorrectly and the two mounts silently disagree. This was hit and diagnosed on 2026-07-25;
+pull-only sidesteps the entire failure mode.
+
+There is deliberately no `scoring:push` script. If you edit `src/shared/**` in a consumer by
+accident, copy the change here by hand and `git checkout -- src/shared` over there.
+
+Do not add `--squash` to the mount or the pull either — it corrupts the prefix mapping in the
+same way, and worse: a squashed pull can drag the consumer's entire root tree into
+`src/shared/`.
+
+### First-time mount in a new consumer
 
 ```sh
 git remote add shared git@github.com:abassaf/400-scorekeeper-scoring.git
-git subtree add --prefix src/shared shared main --squash
+git subtree add --prefix src/shared shared main
+```
+
+Then re-export through one-line barrels so no import paths change:
+
+```ts
+export * from './shared/scoring';   // src/scoring.ts
+export * from './shared/types';     // src/types.ts
 ```
 
 ### Known ceiling
