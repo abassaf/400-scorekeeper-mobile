@@ -66,3 +66,6 @@ fastlane/test_output
 
 # Git worktrees
 .worktrees/
+
+# agent worktrees
+.claude/worktrees/
