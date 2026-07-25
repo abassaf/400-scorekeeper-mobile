@@ -22,6 +22,7 @@ function GameScreen() {
       scoreLimit: entry.scoreLimit,
       rounds: entry.rounds,
       winner: entry.winner,
+      harshDoubles: entry.harshDoubles ?? false,
     };
     dispatch({ type: 'LOAD_STATE', state: loadedState });
   // eslint-disable-next-line react-hooks/exhaustive-deps

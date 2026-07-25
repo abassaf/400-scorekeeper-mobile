@@ -29,7 +29,7 @@ function formatDelta(score: number): string {
 export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
   ({ state }, ref) => {
     const { colors } = useTheme();
-    const { players, rounds, scoreLimit } = state;
+    const { players, rounds, scoreLimit, harshDoubles = false } = state;
     const totals = runningTotals(rounds);
     const stats = PLAYER_INDICES.map((i) => playerStats(rounds, i));
 
@@ -147,7 +147,7 @@ export const ScoreSummaryCard = forwardRef<View, ScoreSummaryCardProps>(
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {PLAYER_INDICES.map((i) => {
               const s = stats[i];
-              const score = playerCumulativeScore(rounds, i);
+              const score = playerCumulativeScore(rounds, i, harshDoubles);
               const makeRateColor = s.makeRate >= 0.7 ? colors.positive : s.makeRate >= 0.5 ? colors.warn : colors.danger;
               return (
                 <View key={i} style={{ flex: 1, backgroundColor: colors.card, borderRadius: 8, padding: 8, borderWidth: 1, borderColor: colors.border }}>

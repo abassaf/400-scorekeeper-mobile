@@ -109,7 +109,7 @@ async function loadTypeface(): Promise<SkTypeface | null> {
 }
 
 export async function generateShareImage(state: GameState, colors: ThemeColors): Promise<string> {
-  const { players, rounds, scoreLimit, winner } = state;
+  const { players, rounds, scoreLimit, winner, harshDoubles = false } = state;
 
   const totals = runningTotals(rounds);
   const stats = PLAYER_INDICES.map((i) => playerStats(rounds, i));
@@ -320,7 +320,7 @@ export async function generateShareImage(state: GameState, colors: ThemeColors):
 
     for (let i = 0; i < 4; i++) {
       const s     = stats[i];
-      const score = playerCumulativeScore(rounds, i as PlayerIndex);
+      const score = playerCumulativeScore(rounds, i as PlayerIndex, harshDoubles);
       const cx    = PAD + i * (CARD_W + CARD_GAP);
 
       canvas.drawRRect(rrect(cx, y, CARD_W, CARD_H, 20), mkFill(colors.card));

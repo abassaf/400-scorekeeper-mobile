@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, ScrollView,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -24,6 +24,7 @@ export function SetupScreen({ state, dispatch }: Props) {
   const { linkText, setLinkText, handleImport } = useImportLink({ state, dispatch, saveGame });
   const [names, setNames] = useState<[string, string, string, string]>(['', '', '', '']);
   const [scoreLimitRaw, setScoreLimitRaw] = useState('80');
+  const [harshDoubles, setHarshDoubles] = useState(false);
 
   const scoreLimit = parseInt(scoreLimitRaw, 10);
   const scoreLimitInvalid = isNaN(scoreLimit) || scoreLimit < 40;
@@ -40,7 +41,7 @@ export function SetupScreen({ state, dispatch }: Props) {
       try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
     }
     const resolved = names.map((n, i) => n.trim() || DEFAULTS[i]) as [string, string, string, string];
-    dispatch({ type: 'START_GAME', players: resolved, scoreLimit });
+    dispatch({ type: 'START_GAME', players: resolved, scoreLimit, harshDoubles });
   }
 
   const inputStyle = {
@@ -121,6 +122,34 @@ export function SetupScreen({ state, dispatch }: Props) {
                 First team to reach this score wins
               </Text>
             )}
+          </View>
+
+          {/* Harsh doubles */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: colors.card,
+              borderColor: colors.borderMuted,
+              borderWidth: 1,
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 28,
+            }}
+          >
+            <View style={{ flex: 1, marginRight: 12 }}>
+              <Text style={{ color: colors.textPrimary, fontSize: 14, fontWeight: '600' }}>Harsh doubles</Text>
+              <Text style={{ color: colors.textSubtle, fontSize: 12, marginTop: 4 }}>
+                A missed bid of 5 or more loses its full value (call 5, miss = −10)
+              </Text>
+            </View>
+            <Switch
+              value={harshDoubles}
+              onValueChange={setHarshDoubles}
+              trackColor={{ false: colors.borderMuted, true: colors.accent }}
+              accessibilityLabel="Harsh doubles"
+            />
           </View>
 
           {/* Start button */}

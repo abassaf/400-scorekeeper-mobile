@@ -16,6 +16,7 @@ describe('gameReducer', () => {
         type: 'START_GAME',
         players: ['Alice', 'Bob', 'Carol', 'Dave'],
         scoreLimit: 80,
+        harshDoubles: false,
       };
       const next = gameReducer(initialState, action);
       expect(next.phase).toBe('playing');
@@ -25,14 +26,14 @@ describe('gameReducer', () => {
     });
 
     it('clamps scoreLimit to 40 minimum', () => {
-      const action: GameAction = { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 10 };
+      const action: GameAction = { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 10, harshDoubles: false };
       expect(gameReducer(initialState, action).scoreLimit).toBe(40);
     });
   });
 
   describe('ADD_ROUND', () => {
     it('adds a round and calculates scores', () => {
-      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80 });
+      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80, harshDoubles: false });
       const next = gameReducer(playing, { type: 'ADD_ROUND', entries: entries4 });
       expect(next.rounds).toHaveLength(1);
       expect(next.rounds[0].teamAScore).toBe(13); // playerScore(5,5)=10 + playerScore(3,3)=3
@@ -40,16 +41,42 @@ describe('gameReducer', () => {
     });
   });
 
+  describe('harshDoubles', () => {
+    it('scores a missed high bid at the raw bid value by default', () => {
+      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80, harshDoubles: false });
+      const entries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry] = [
+        { called: 5, obtained: 0 },
+        { called: 2, obtained: 2 },
+        { called: 2, obtained: 2 },
+        { called: 2, obtained: 2 },
+      ];
+      const next = gameReducer(playing, { type: 'ADD_ROUND', entries });
+      expect(next.rounds[0].teamAScore).toBe(-3); // -5 (missed) + 2
+    });
+
+    it('scores a missed high bid at the full table value when harshDoubles is on', () => {
+      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80, harshDoubles: true });
+      const entries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry] = [
+        { called: 5, obtained: 0 },
+        { called: 2, obtained: 2 },
+        { called: 2, obtained: 2 },
+        { called: 2, obtained: 2 },
+      ];
+      const next = gameReducer(playing, { type: 'ADD_ROUND', entries });
+      expect(next.rounds[0].teamAScore).toBe(-8); // -10 (harsh miss) + 2
+    });
+  });
+
   describe('UNDO_ROUND', () => {
     it('removes the last round', () => {
-      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80 });
+      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80, harshDoubles: false });
       const withRound = gameReducer(playing, { type: 'ADD_ROUND', entries: entries4 });
       const undone = gameReducer(withRound, { type: 'UNDO_ROUND' });
       expect(undone.rounds).toHaveLength(0);
     });
 
     it('is a no-op with no rounds', () => {
-      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80 });
+      const playing = gameReducer(initialState, { type: 'START_GAME', players: ['A', 'B', 'C', 'D'], scoreLimit: 80, harshDoubles: false });
       expect(gameReducer(playing, { type: 'UNDO_ROUND' })).toBe(playing);
     });
   });
@@ -60,6 +87,7 @@ describe('gameReducer', () => {
         type: 'START_GAME',
         players: ['A', 'B', 'C', 'D'],
         scoreLimit: 40,
+        harshDoubles: false,
       });
       const bigEntries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry] = [
         { called: 9, obtained: 9 },  // 27

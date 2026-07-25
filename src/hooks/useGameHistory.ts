@@ -13,6 +13,7 @@ export interface HistoryEntry {
   scoreLimit: number;
   rounds: Round[];
   winner: 'A' | 'B' | null;
+  harshDoubles?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -30,6 +31,7 @@ export function buildHistoryEntry(state: GameState): HistoryEntry {
     scoreLimit: state.scoreLimit,
     rounds: state.rounds,
     winner: state.winner,
+    harshDoubles: state.harshDoubles ?? false,
   };
 }
 

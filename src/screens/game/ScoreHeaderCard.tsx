@@ -14,15 +14,15 @@ interface Props {
 
 export function ScoreHeaderCard({ state, onNewGame, onShare, onSave }: Props) {
   const { colors } = useTheme();
-  const { players, scoreLimit, rounds, phase } = state;
+  const { players, scoreLimit, rounds, phase, harshDoubles = false } = state;
   const totals = runningTotals(rounds);
 
   const aBlocked =
     totals.a >= scoreLimit &&
-    ([0, 1] as const).some((i) => playerCumulativeScore(rounds, i) < 0);
+    ([0, 1] as const).some((i) => playerCumulativeScore(rounds, i, harshDoubles) < 0);
   const bBlocked =
     totals.b >= scoreLimit &&
-    ([2, 3] as const).some((i) => playerCumulativeScore(rounds, i) < 0);
+    ([2, 3] as const).some((i) => playerCumulativeScore(rounds, i, harshDoubles) < 0);
 
   const roundDisplay =
     phase === 'playing'

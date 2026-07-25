@@ -11,7 +11,7 @@ function makeRateColor(r: number, colors: ThemeColors) { return r >= 0.7 ? color
 
 export function PlayerStatsCard({ state }: Props) {
   const { colors } = useTheme();
-  const { rounds, players } = state;
+  const { rounds, players, harshDoubles = false } = state;
   const totals = runningTotals(rounds);
   return (
     <View style={{ backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border }}>
@@ -21,7 +21,7 @@ export function PlayerStatsCard({ state }: Props) {
           <View key={colStart} style={{ flex: 1, gap: 8 }}>
             {([colStart, colStart + 1] as PlayerIndex[]).map((idx) => {
               const s = playerStats(rounds, idx);
-              const score = playerCumulativeScore(rounds, idx);
+              const score = playerCumulativeScore(rounds, idx, harshDoubles);
               const isTeamA = idx < 2;
               const teamColors = isTeamA ? colors.teamA : colors.teamB;
               return (

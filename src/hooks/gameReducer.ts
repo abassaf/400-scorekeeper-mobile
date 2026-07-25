@@ -6,7 +6,7 @@ import type { GameState, PlayerEntry, PlayerIndex, Round } from '../types';
 // ---------------------------------------------------------------------------
 
 export type GameAction =
-  | { type: 'START_GAME'; players: [string, string, string, string]; scoreLimit: number }
+  | { type: 'START_GAME'; players: [string, string, string, string]; scoreLimit: number; harshDoubles: boolean }
   | { type: 'ADD_ROUND'; entries: [PlayerEntry, PlayerEntry, PlayerEntry, PlayerEntry] }
   | { type: 'UNDO_ROUND' }
   | { type: 'NEW_GAME' }
@@ -24,6 +24,7 @@ export const initialState: GameState = {
   scoreLimit: 80,
   rounds: [],
   winner: null,
+  harshDoubles: false,
 };
 
 // ---------------------------------------------------------------------------
@@ -46,12 +47,13 @@ function canWin(
   scoreLimit: number,
   rounds: { entries: { called: number; obtained: number }[] }[],
   playerIndices: PlayerIndex[],
+  harshDoubles: boolean,
 ): boolean {
   if (total < scoreLimit) return false;
   return playerIndices.every((i) => {
     const cumScore = rounds.reduce((sum, r) => {
       const e = r.entries[i];
-      return sum + playerScore(e.called, e.obtained);
+      return sum + playerScore(e.called, e.obtained, harshDoubles);
     }, 0);
     return cumScore >= 0;
   });
@@ -99,6 +101,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         scoreLimit: clamp(action.scoreLimit, 40, 500),
         rounds: [],
         winner: null,
+        harshDoubles: action.harshDoubles,
       };
     }
 
@@ -110,7 +113,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         clampEntry(action.entries[3]),
       ];
 
-      const { teamAScore, teamBScore } = calcRound(clampedEntries);
+      const harshDoubles = state.harshDoubles ?? false;
+      const { teamAScore, teamBScore } = calcRound(clampedEntries, harshDoubles);
 
       const newRound = {
         id: state.rounds.length + 1,
@@ -123,8 +127,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const totals = runningTotals(newRounds);
       const { scoreLimit } = state;
 
-      const aCanWin = canWin(totals.a, scoreLimit, newRounds, [0, 1]);
-      const bCanWin = canWin(totals.b, scoreLimit, newRounds, [2, 3]);
+      const aCanWin = canWin(totals.a, scoreLimit, newRounds, [0, 1], harshDoubles);
+      const bCanWin = canWin(totals.b, scoreLimit, newRounds, [2, 3], harshDoubles);
 
       let winner: 'A' | 'B' | null = null;
       if (aCanWin && bCanWin) {
@@ -147,8 +151,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.rounds.length === 0) return state;
       const newRounds = state.rounds.slice(0, -1);
       const totals = runningTotals(newRounds);
-      const aCanWin = canWin(totals.a, state.scoreLimit, newRounds, [0, 1]);
-      const bCanWin = canWin(totals.b, state.scoreLimit, newRounds, [2, 3]);
+      const harshDoubles = state.harshDoubles ?? false;
+      const aCanWin = canWin(totals.a, state.scoreLimit, newRounds, [0, 1], harshDoubles);
+      const bCanWin = canWin(totals.b, state.scoreLimit, newRounds, [2, 3], harshDoubles);
       let winner: 'A' | 'B' | null = null;
       if (aCanWin && bCanWin) {
         winner = totals.a >= totals.b ? 'A' : 'B';
@@ -174,7 +179,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         clampEntry(action.entries[2]),
         clampEntry(action.entries[3]),
       ];
-      const { teamAScore, teamBScore } = calcRound(clampedEntries);
+      const harshDoubles = state.harshDoubles ?? false;
+      const { teamAScore, teamBScore } = calcRound(clampedEntries, harshDoubles);
       const updatedRound: Round = {
         ...state.rounds[idx],
         entries: clampedEntries,
@@ -185,8 +191,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newRounds = [...state.rounds.slice(0, idx), updatedRound, ...state.rounds.slice(idx + 1)];
       const totals = runningTotals(newRounds);
       const { scoreLimit } = state;
-      const aCanWin = canWin(totals.a, scoreLimit, newRounds, [0, 1]);
-      const bCanWin = canWin(totals.b, scoreLimit, newRounds, [2, 3]);
+      const aCanWin = canWin(totals.a, scoreLimit, newRounds, [0, 1], harshDoubles);
+      const bCanWin = canWin(totals.b, scoreLimit, newRounds, [2, 3], harshDoubles);
       let winner: 'A' | 'B' | null = null;
       if (aCanWin && bCanWin) {
         winner = totals.a >= totals.b ? 'A' : 'B';
