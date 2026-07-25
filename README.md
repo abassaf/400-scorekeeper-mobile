@@ -192,8 +192,12 @@ To promote from internal to a wider track, use the Google Play Console.
 
 ```
 src/
-  scoring.ts          — pure scoring logic (shared with web version)
-  types.ts            — shared types
+  shared/             — git subtree of 400-scorekeeper-scoring (see below)
+    scoring.ts        — pure scoring logic
+    types.ts          — shared types
+    scoring.test.ts   — scoring tests (run from this repo)
+  scoring.ts          — one-line re-export of shared/scoring
+  types.ts            — one-line re-export of shared/types
   hooks/
     gameReducer.ts    — all game state transitions
     useGameState.ts   — state hook
@@ -210,6 +214,25 @@ scripts/
 ```
 
 ---
+
+## Shared scoring rules
+
+The scoring logic is not maintained here. It lives in
+**[400-scorekeeper-scoring](https://github.com/abassaf/400-scorekeeper-scoring)** and is
+shared verbatim with the [web app](https://github.com/abassaf/400-scorekeeper), mounted at
+`src/shared/` as a `git subtree` and re-exported through one-line barrels at
+`src/scoring.ts` / `src/types.ts` so no import paths change.
+
+**Do not edit `src/shared/**` here.** The mount is pull-only — edit and push in the shared
+repo, then:
+
+```bash
+pnpm scoring:pull   # git subtree pull --prefix src/shared shared main
+pnpm test           # this repo is the only place the shared tests run
+```
+
+There is deliberately no push script, and no `--squash` on the mount. See the shared repo's
+README for why both break.
 
 ## License
 
