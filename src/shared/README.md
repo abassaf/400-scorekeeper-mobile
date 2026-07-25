@@ -82,3 +82,7 @@ export * from './shared/types';     // src/types.ts
 Pulling is manual, so the two mounts can sit at different commits for a while. That is
 acceptable for one developer across two repos. If it starts causing drift, add a CI check
 that fails when `src/shared` doesn't match this repo's `main`.
+
+## License
+
+MIT. See [LICENSE](LICENSE). Same terms as both consuming apps.
